@@ -1,35 +1,136 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue'
-import { toRefs } from 'vue'
+import { toRefs, inject } from 'vue'
 import Icon from '@/Shared/Icon.vue'
 import { Inertia } from '@inertiajs/inertia'
 import { useForm } from '@inertiajs/inertia-vue3'
 
 const props = defineProps({
-    users: Object
+    users: Object,
 })
 
 const form = useForm();
 const users = toRefs(props).users
+const swal = inject('$swal')
 
 function destroy(user) {
-    if (confirm("Are you sure you want to Delete")) {
-        form.delete(route('admin.users.destroy', user));
-    }
+    // if (confirm("Are you sure you want to Delete")) {
+    //     form.delete(route('admin.users.destroy', user));
+    // }
+    swal.fire({        
+        // title: frenchkiss.t('title', {}, lang),
+        title: 'Estas seguro?',
+        text: "¡No podrás revertir esto!",
+        width: '400px',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: '¡Sí, eliminar!',
+        cancelButtonText: "¡No, cancelar!"
+    }).then((result)=>{
+        if (result.isConfirmed){
+          // Inertia.patch(route('admin.users.inactivate',user)),
+          form.delete(route('admin.users.destroy', user));
+          swal.fire(
+                "Eliminado",
+                "Usuario ha sido eliminado.",
+                "success"
+            )
+        }
+        if (result.dismiss === "cancel") {
+            swal.fire(
+                "Cancelado",
+                "Usuario esta a salvo :)",
+                "error"
+            )
+        }
+    })
 }
 
 // function inactivateUser(user) {
 //   form.patch(route('admin.users.inactivate',user), {
 //     preserveScroll:true                            
 //   })
-// }
+// frenchkiss.set('en', { 
+//   title: 'Are you sure?',
+//   text: "User will not be able to login!",
+//   confirmButtonText: 'Yes, inactivate it!',
+//   cancelButtonText: "No, cancel!",
+//   Inactivated: "Inactivated!"
+// })
+// frenchkiss.set('es', { 
+//   title: 'Estas seguro?',
+//   text: "Usuario no podrá iniciar sesión!",
+//   confirmButtonText: '¡Sí, desactívalo!',
+//   cancelButtonText: "¡No, cancelar!" ,
+//   Inactivated: "Inactivado!"
+// })
+// frenchkiss.locale('es');
+// frenchkiss.fallback('en');
 
+// const inactivateUser = (user, lang) => {
 const inactivateUser = (user) => {
-  Inertia.patch(route('admin.users.inactivate',user))
+  // Inertia.patch(route('admin.users.inactivate',user))
+  swal.fire({        
+        // title: frenchkiss.t('title', {}, lang),
+        title: 'Estas seguro?',
+        text: "Usuario no podrá iniciar sesión!",
+        width: '400px',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: '¡Sí, desactívalo!',
+        cancelButtonText: "¡No, cancelar!"
+    }).then((result)=>{
+        if (result.isConfirmed){
+          Inertia.patch(route('admin.users.inactivate',user)),
+          swal.fire(
+                "Inactivado",
+                "Usuario ha sido inactivado.",
+                "success"
+            )
+        }
+        if (result.dismiss === "cancel") {
+            swal.fire(
+                "Cancelado",
+                "Usuario esta a salvo :)",
+                "error"
+            )
+        }
+    })
 }
 
 const activateUser = (user) => {
-  Inertia.patch(route('admin.users.activate',user))
+  // Inertia.patch(route('admin.users.activate',user))
+  swal.fire({
+        title: 'Estas seguro?',
+        text: "Usuario ya podrá iniciar sesión!",
+        width: '400px',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: '¡Sí, actívalo!',
+        cancelButtonText: "¡No, cancelar!"
+    }).then((result)=>{
+        if (result.isConfirmed){
+          Inertia.patch(route('admin.users.activate',user)),
+          swal.fire(
+                "Activado",
+                "Usuario ha sido activado.",
+                "success"
+            )
+        }
+        if (result.dismiss === "cancel") {
+          swal.fire(
+                "Cancelado",
+                "Usuario esta a salvo :)",
+                "error"
+            )
+        }
+    })
 }
 
 // function activateUser(user) {
@@ -44,7 +145,7 @@ const activateUser = (user) => {
     <AdminLayout title="AdminLayout">
         <div class="container px-6 mx-auto grid">
             <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
-              Usuarios
+              {{ $t('Users') }}
             </h2>            
             <!-- CTA -->
             <!-- <a class="flex items-center justify-between p-4 mb-8 text-sm font-semibold text-purple-100 bg-purple-600 rounded-lg shadow-md focus:outline-none focus:shadow-outline-purple" href="https://github.com/estevanmaito/windmill-dashboard">
@@ -176,9 +277,9 @@ const activateUser = (user) => {
                         <!-- </span> -->
                       </td>
                       <td class="py-3 text-sm flex space-x-4">
-                        <Icon name="eye" class="h-5 w-5" /> 
-                        <Icon name="edit" class="h-5 w-5" /> 
-                        <Icon name="trash" class="h-5 w-5" @click="destroy(user)" />                      
+                        <Icon name="eye" class="h-5 w-5 cursor-pointer text-blue-500"/> 
+                        <Icon name="edit" class="h-5 w-5 cursor-pointer text-orange-500"/> 
+                        <Icon name="trash" class="h-5 w-5 cursor-pointer text-red-500" @click="destroy(user)" />                      
                       </td>
                     </tr>
                   </tbody>

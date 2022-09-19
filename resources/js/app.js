@@ -12,6 +12,13 @@ import { InertiaProgress } from '@inertiajs/progress';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
 
+import VueSweetalert2 from 'vue-sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
+const options = {
+    confirmButtonColor: '#41b882',
+    cancelButtonColor: '#ff7674',
+  };
+
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 
@@ -28,7 +35,8 @@ createInertiaApp({
                     return await langs[`../../lang/${lang}.json`]();
                 }
             })
-            .directive('click-outside', ClickOutside)
+            .use(VueSweetalert2,options)
+            .directive('click-outside', ClickOutside)            
             .mount(el);
     },
 });

@@ -3,6 +3,8 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- <script src="https://cdn.jsdelivr.net/npm/frenchkiss/dist/umd/frenchkiss.js"></script> -->
+
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
