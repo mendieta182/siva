@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,7 +60,7 @@ Route::get('/', function () {
 Route::prefix('admin')->name('admin.')
     ->middleware(['auth:sanctum','verified'])
     ->group(function (){
-    // Route::get('dashboard',[AdminDashboardController::class,'index'])->name('dashboard.index');
+    Route::get('dashboard',[DashboardController::class,'index'])->name('dashboard.index');
 
     // Route::resource('admins',AdminController::class)
     //     ->parameters(['admins'=>'user'])
