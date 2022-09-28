@@ -1,5 +1,6 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue'
+import Pagination from '@/Components/Pagination.vue'
 import { toRefs, inject } from 'vue'
 import Icon from '@/Shared/Icon.vue'
 import { Inertia } from '@inertiajs/inertia'
@@ -226,8 +227,59 @@ const activateUser = (user) => {
             </div>
 
             <!-- New Table -->
-            <div class="w-full overflow-hidden rounded-lg shadow-xs">
+            <div class="w-full overflow-hidden shadow-xs">
               <div class="w-full overflow-x-auto">
+
+
+                <div class="shadow-lg p-4 bg-white dark:bg-gray-700 w-full">
+                  <div class="flex items-center justify-between">
+                      <div class="flex items-center">
+                          <span class="rounded-xl relative p-2 bg-blue-100">
+                              <svg width="25" height="25" viewBox="0 0 256 262" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid">
+                                  <path d="M255.878 133.451c0-10.734-.871-18.567-2.756-26.69H130.55v48.448h71.947c-1.45 12.04-9.283 30.172-26.69 42.356l-.244 1.622 38.755 30.023 2.685.268c24.659-22.774 38.875-56.282 38.875-96.027" fill="#4285F4">
+                                  </path>
+                                  <path d="M130.55 261.1c35.248 0 64.839-11.605 86.453-31.622l-41.196-31.913c-11.024 7.688-25.82 13.055-45.257 13.055-34.523 0-63.824-22.773-74.269-54.25l-1.531.13-40.298 31.187-.527 1.465C35.393 231.798 79.49 261.1 130.55 261.1" fill="#34A853">
+                                  </path>
+                                  <path d="M56.281 156.37c-2.756-8.123-4.351-16.827-4.351-25.82 0-8.994 1.595-17.697 4.206-25.82l-.073-1.73L15.26 71.312l-1.335.635C5.077 89.644 0 109.517 0 130.55s5.077 40.905 13.925 58.602l42.356-32.782" fill="#FBBC05">
+                                  </path>
+                                  <path d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0 79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251" fill="#EB4335">
+                                  </path>
+                              </svg>
+                          </span>
+                          <div class="flex flex-col">     
+                              <span class="font-bold text-md text-black dark:text-white ml-2">
+                                  {{ $t('Users') }}
+                              </span>
+                              <span class="text-sm text-gray-500 dark:text-white ml-2">
+                                  Showing {{$page.props.users.from}} - {{$page.props.users.to}} of {{$page.props.users.total}}
+                              </span>
+                          </div>
+                      </div>
+                      <div @click.prevent="openModalCreate" class="flex items-center text-gray-400 dark:text-white font-semibold hover:font-bold dark:hover:font-bold hover:text-green-900">
+                          <button class="p-1 rounded-full text-green-500 dark:text-white">
+                              <svg class="h-6 w-6" fill="currentColor" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                                  viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+                                  <g>
+                                      <g>
+                                          <path d="M257,0C116.39,0,0,114.39,0,255s116.39,257,257,257s255-116.39,255-257S397.61,0,257,0z M392,285H287v107
+                                              c0,16.54-13.47,30-30,30c-16.54,0-30-13.46-30-30V285H120c-16.54,0-30-13.46-30-30c0-16.54,13.46-30,30-30h107V120
+                                              c0-16.54,13.46-30,30-30c16.53,0,30,13.46,30,30v105h105c16.53,0,30,13.46,30,30S408.53,285,392,285z"/>
+                                      </g>
+                                  </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g>
+                              </svg>
+                          </button>
+                          <button class="text-sm uppercase">
+                              <span class="">
+                                  {{ $t('Create') }}
+                              </span>
+                          </button>
+                      </div>
+                  </div>
+                </div>
+
+
+
+
                 <table class="w-full whitespace-no-wrap">
                   <thead>
                     <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
@@ -239,9 +291,10 @@ const activateUser = (user) => {
                     </tr>
                   </thead>
                   <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
-                    <tr class="text-gray-700 dark:text-gray-400" v-for="user in users" key="index">
+                    <tr class="text-gray-700 dark:text-gray-400" v-for="(user,index) in users.data" key="user.id">
                       <td class="px-4 py-3 text-sm">
-                        {{ user.id }}
+                        <!-- {{ user.id }} -->
+                        {{ (index+1) + $page.props.users.current_page * $page.props.users.per_page - $page.props.users.per_page }}
                       </td>
                       <td class="px-4 py-3">
                         <div class="flex items-center text-sm">
@@ -284,66 +337,8 @@ const activateUser = (user) => {
                     </tr>
                   </tbody>
                 </table>
-              </div>
-              <div class="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800">
-                <span class="flex items-center col-span-3">
-                  Showing 21-30 of 100
-                </span>
-                <span class="col-span-2"></span>
-                <!-- Pagination -->
-                <span class="flex col-span-4 mt-2 sm:mt-auto sm:justify-end">
-                  <nav aria-label="Table navigation">
-                    <ul class="inline-flex items-center">
-                      <li>
-                        <button class="px-3 py-1 rounded-md rounded-l-lg focus:outline-none focus:shadow-outline-purple" aria-label="Previous">
-                          <svg aria-hidden="true" class="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                            <path d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" fill-rule="evenodd"></path>
-                          </svg>
-                        </button>
-                      </li>
-                      <li>
-                        <button class="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          1
-                        </button>
-                      </li>
-                      <li>
-                        <button class="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          2
-                        </button>
-                      </li>
-                      <li>
-                        <button class="px-3 py-1 text-white transition-colors duration-150 bg-purple-600 border border-r-0 border-purple-600 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          3
-                        </button>
-                      </li>
-                      <li>
-                        <button class="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          4
-                        </button>
-                      </li>
-                      <li>
-                        <span class="px-3 py-1">...</span>
-                      </li>
-                      <li>
-                        <button class="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          8
-                        </button>
-                      </li>
-                      <li>
-                        <button class="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          9
-                        </button>
-                      </li>
-                      <li>
-                        <button class="px-3 py-1 rounded-md rounded-r-lg focus:outline-none focus:shadow-outline-purple" aria-label="Next">
-                          <svg class="w-4 h-4 fill-current" aria-hidden="true" viewBox="0 0 20 20">
-                            <path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" fill-rule="evenodd"></path>
-                          </svg>
-                        </button>
-                      </li>
-                    </ul>
-                  </nav>
-                </span>
+                <!-- <pre>{{ users }}</pre> -->
+                <Pagination :data="users"></Pagination>
               </div>
             </div>
           </div>       
