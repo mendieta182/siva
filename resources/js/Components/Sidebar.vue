@@ -27,7 +27,7 @@
             </Link>
           </li>
         </ul>
-        <p class="p-3 ml-3 text-xs uppercase text-gray-900 dark:text-blue-200">{{ $t("Administration") }}</p>
+        <p class="p-2 ml-3 items-center text-center font-bold text-xs uppercase text-gray-900 dark:text-blue-200">{{ $t("Administration") }}</p>
         <ul>
           <li class="relative px-6 py-3 hover:text-gray-800"
               :class="route().current('admin.users.*') ? 'bg-gray-200 text-gray-800':'hover:bg-blue-50'">

@@ -14,11 +14,23 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::paginate(5);
+        $search = $request->has('search') ? $request->search : '';
+
+        
+        $perPage = $request->has('perPage') ? $request->perPage : 5;
+
+
+
+        $users = User::where('name','LIKE','%'.$search.'%')
+                       ->orwhere('email','LIKE','%'.$search.'%')
+                       ->paginate($perPage)->withQueryString();
         return Inertia::render('Users/Index', [
-            'users' => $users
+            'users' => $users,
+            'search' => $search,
+            'perPage'=>$perPage,
+            // 'filters' => $request->only(['name_search','email_search','perPage'])
         ]);
     }
 
