@@ -6,7 +6,9 @@
     "Status": "Estado",
     "Actions": "Acciones",
     "Search": "Buscar",
-    "Add": "Añadir"
+    "Add": "Añadir",
+    "Activated": "Activado",
+    "Inactivated": "Inactivado"
 
 
 }

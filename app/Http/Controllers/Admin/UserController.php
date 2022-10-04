@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Hash;
+
 
 class UserController extends Controller
 {
@@ -18,8 +20,9 @@ class UserController extends Controller
     {
         $search = $request->has('search') ? $request->search : '';
 
+        $email_search = $request->has('email_search') ? $request->email_search : '';
         
-        $perPage = $request->has('perPage') ? $request->perPage : 5;
+        $perPage = $request->has('perPage') ? $request->perPage : '5';
 
 
 
@@ -29,8 +32,9 @@ class UserController extends Controller
         return Inertia::render('Users/Index', [
             'users' => $users,
             'search' => $search,
+            'email_search' => $email_search,
             'perPage'=>$perPage,
-            // 'filters' => $request->only(['name_search','email_search','perPage'])
+            'filters' => $request->only(['search','perPage','email_search'])
         ]);
     }
 
@@ -52,7 +56,24 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request,[
+            'name'=>['required','max:50','min:2'],
+            'lastname'=>['required','max:50','min:2'],
+            // 'roles'=>['required'],
+            'email'=>['required','max:50','min:2','email','unique:users,email']
+        ]);
+        $user=User::create([
+            'name'=>$request->name,
+            'lastname'=>$request->lastname,
+            'email'=>$request->email,
+            'status'=>0,
+            'password'=>Hash::make('password'),
+        ]);
+        // if ($request->has('roles')){
+        //     $user->assignRole($request->roles);
+        // }
+
+        return back();
     }
 
     /**

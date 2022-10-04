@@ -5,9 +5,11 @@ import { ref, toRefs, inject, computed, reactive, watch } from 'vue'
 import Icon from '@/Shared/Icon.vue'
 import { Inertia } from '@inertiajs/inertia'
 import { useForm } from '@inertiajs/inertia-vue3'
+import JetDialogModal from '@/Jetstream/DialogModal.vue'
 
 const props = defineProps({
   users: Object,
+  perPage: Number,
   filters: Object,
 })
 
@@ -15,28 +17,29 @@ const form = useForm();
 const users = toRefs(props).users
 const swal = inject('$swal')
 
-const search = ref(props.search);
+const search = ref(props.filters.search);
 // const filters = ref(props.filters);
-const perPage = ref(5);
+const perPage = ref(props.perPage);
+const estadoModalCreate = ref(false);
 
-watch(search,(value)=>{
+watch(search, (value) => {
   Inertia.get(route('admin.users.index'),
-  {search: value, perPage: perPage.value},
-  {
-    preserveState: true,
-    replace: true
-  });
+    { search: value, perPage: perPage.value },
+    {
+      preserveState: true,
+      replace: true
+    });
 });
 
 
 
 function getUsers() {
   Inertia.get(route('admin.users.index'),
-  {perPage: perPage.value, search: search.value},
-  {
-    preserveState: true,
-    replace: true
-  });
+    { perPage: perPage.value, search: search.value },
+    {
+      preserveState: true,
+      replace: true
+    });
 }
 
 function destroy(user) {
@@ -159,6 +162,65 @@ const activateUser = (user) => {
   })
 }
 
+const openModalCreate = () => {
+  estadoModalCreate.value = true
+}
+
+const closeModal = () => {
+    estadoModalCreate.value = false
+    // this.estadoModalShow = false
+    // this.estadoModalEdit = false
+    // this.form.reset()
+    // this.form.clearErrors()
+}
+
+const formUser = reactive({
+    name: '',
+    lastname: '',
+    email: '',
+    password: ''
+})
+
+const error = reactive({
+    name: '',
+    email: ''
+})
+
+const createUser = () => {
+  Inertia.post(route('admin.users.store'), formUser, {
+    preserveScroll:true,
+    onSuccess: () => {
+      estadoModalCreate.value = false
+      formUser.name = ''
+      formUser.lastname = ''          
+      formUser.email = ''
+      formUser.password = ''
+      error.name = ''
+      error.email = ''
+      const Toast = swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', swal.stopTimer)
+            toast.addEventListener('mouseleave', swal.resumeTimer)
+        }
+      })
+      Toast.fire({
+      icon: 'success',
+      title: 'Successfully created user'
+      })
+    },
+    onError: errors => {
+        error.name = errors.name
+        error.lastname = errors.lastname
+        error.email = errors.email
+    }
+  })
+}
+
 </script>
 
 <template>
@@ -198,7 +260,7 @@ const activateUser = (user) => {
                   </span>
                 </div>
               </div>
-              <div @click.prevent="openModalCreate"
+              <div @click.prevent="openModalCreate" 
                 class="flex items-center text-gray-400 dark:text-white font-semibold hover:font-bold dark:hover:font-bold hover:text-green-900">
                 <button class="p-1 rounded-full text-green-500 dark:text-white">
                   <svg class="h-6 w-6" fill="currentColor" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
@@ -241,16 +303,10 @@ const activateUser = (user) => {
             <div class="flex items-center justify-between mt-2">
               <div class="relative flex-1">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current text-gray-500">
-                    <path
-                      d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z">
-                    </path>
-                  </svg>
+                  <Icon name="search" class="h-4 w-4" />
                 </div>
-                <input 
-                  class="w-1/3 pl-10 text-sm rounded border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
-                  id="Name" type="text" :placeholder="$t('Name')"
-                  v-model="search" />
+                <input class="w-1/3 pl-10 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                  id="Name" type="text" :placeholder="$t('Name')" v-model="search" />
               </div>
               <!-- <div class="relative flex-1 ml-4">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -278,9 +334,7 @@ const activateUser = (user) => {
                 </div> -->
 
                 <div class="relative">
-                  <select
-                    v-model="perPage"
-                    @change="getUsers"
+                  <select v-model="perPage" @change="getUsers"
                     class="inline-flex items-center transition-default whitespace-nowrap text-sm  pl-4 pr-7 py-2 border leading-5 font-medium shadow-sm rounded-md border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
                     <option value="5">5</option>
                     <option value="10">10</option>
@@ -338,11 +392,11 @@ const activateUser = (user) => {
                   <!-- {{ user.status }} -->
                   <button v-if="user.status==1" @click="inactivateUser(user)"
                     class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">
-                    Active
+                    {{ $t('Activated') }}
                   </button>
                   <button v-else @click="activateUser(user)"
                     class="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full dark:bg-red-700 dark:text-red-100">
-                    Inactive
+                    {{ $t('Inactivated') }}
                   </button>
                   <!-- </span> -->
                 </td>
@@ -362,6 +416,79 @@ const activateUser = (user) => {
       </div>
     </div>
     <!-- End Content -->
+    <jet-dialog-modal v-if="estadoModalCreate == true" :show="estadoModalCreate" @close="estadoModalCreate = false"
+      max-width="lg">
+      <template #title>
+        <button @click="closeModal" type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white">
+            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            <span class="sr-only">Close modal</span>
+        </button>
+        <div class="flex justify-center">
+            <h3 class="ml-2 text-2xl font-bold text-center">New user</h3>
+        </div>        
+      </template>
+      <template #content>   
+        <form class="px-2 bg-white dark:bg-gray-700 rounded" @submit.prevent="createUser">
+
+          <div class="mb-2">
+            <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="Name">
+              {{ $t('Name') }}
+            </label>
+            <!-- <input v-model="formUser.name" :class="formUser.errors.name ? 'border-red-500':''" -->
+            <input v-model="formUser.name"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+              id="Name" type="text" :placeholder="$t('Name')" />
+            <p v-if="error.name" class="text-xs italic text-red-500">{{ error.name }}</p>
+          </div>
+          <div class="mb-2">
+            <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="LastName">
+              LastName
+            </label>
+            <!-- <input v-model="formUser.lastname" :class="formUser.errors.lastname ? 'border-red-500':''" -->
+            <input v-model="formUser.lastname"            
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+
+              id="LastName" type="text" placeholder="LastName" />
+            <!-- <p v-if="formUser.errors.lastname" class="text-xs italic text-red-500">{{ formUser.errors.lastname }}</p> -->
+          </div>
+          <div class="mb-2">
+            <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="email">
+              Email
+            </label>
+            <!-- <input v-model="formUser.email" :class="formUser.errors.email ? 'border-red-500':''" -->
+            <input v-model="formUser.email"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+              id="email" type="email" :placeholder="$t('Email')" />
+            <!-- <p v-if="formUser.errors.email" class="text-xs italic text-red-500">{{ formUser.errors.email }}</p> -->
+          </div>
+          <div class="mb-2">
+            <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="role">Role</label>
+            <!-- <div class="grid grid-cols-3 gap-2 bg-gray-100 dark:bg-gray-800 rounded">
+              <div v-for="role in roles" :key="role.id">
+                <label class="inline-flex items-center text-xs m-2">
+                  <input type="checkbox" v-model="form.roles" :class="form.errors.roles ? 'border-red-500':''"
+                    class="form-checkbox rounded" :value="role.id">
+                  <span class="mx-2">{{ role.name }}</span>
+                </label>
+              </div>
+            </div>
+            <p v-if="form.errors.roles" class="text-xs italic text-red-500 dark:text-red-400">{{ form.errors.roles }}
+            </p> -->
+          </div>
+          <div class="flex items-center justify-center">
+            <button type="button" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2"
+              @click="closeModal">
+              Cancel
+            </button>
+            <button type="submit" :disabled="!formUser.name||!formUser.lastname||!formUser.email||formUser.processing"
+              :class="!formUser.name||!formUser.lastname||!formUser.email ? 'disabled:opacity-50 disabled cursor-not-allowed':''"
+              class="flex ml-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+              Create
+            </button>
+          </div>
+        </form>
+      </template>
+    </jet-dialog-modal>
   </AdminLayout>
 </template>
 

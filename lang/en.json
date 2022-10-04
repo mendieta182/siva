@@ -6,6 +6,8 @@
     "Status": "Status",
     "Actions": "Actions",
     "Search": "Search",
-    "Add": "Add"
+    "Add": "Add",
+    "Activated": "Activated",
+    "Inactivated": "Inactivated"
 
 }

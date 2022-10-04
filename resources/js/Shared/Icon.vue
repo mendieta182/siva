@@ -142,6 +142,19 @@
         </path>
     </svg>
 
+    <svg v-else-if="name==='search'" viewBox="0 0 24 24" class="h-4 w-4 fill-current text-gray-500">
+        <path
+            d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z">
+        </path>
+    </svg>
+
+    <svg v-else-if="name==='home'" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round"
+        stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+        <path
+            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+        </path>
+    </svg>
+
 
 </template>
 
