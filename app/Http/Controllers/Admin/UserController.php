@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Role;
 use App\Models\User;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 
 
@@ -26,10 +27,12 @@ class UserController extends Controller
 
 
 
-        $users = User::where('name','LIKE','%'.$search.'%')
+        $users = User::with('roles')
+                       ->where('name','LIKE','%'.$search.'%')
                        ->orwhere('email','LIKE','%'.$search.'%')
                        ->paginate($perPage)->withQueryString();
         return Inertia::render('Users/Index', [
+            'roles' => Role::all(),
             'users' => $users,
             'search' => $search,
             'email_search' => $email_search,
@@ -59,7 +62,7 @@ class UserController extends Controller
         $this->validate($request,[
             'name'=>['required','max:50','min:2'],
             'lastname'=>['required','max:50','min:2'],
-            // 'roles'=>['required'],
+            'roles'=>['required'],
             'email'=>['required','max:50','min:2','email','unique:users,email']
         ]);
         $user=User::create([
@@ -69,9 +72,9 @@ class UserController extends Controller
             'status'=>0,
             'password'=>Hash::make('password'),
         ]);
-        // if ($request->has('roles')){
-        //     $user->assignRole($request->roles);
-        // }
+        if ($request->has('roles')){
+            $user->assignRole($request->roles);
+        }
 
         return back();
     }

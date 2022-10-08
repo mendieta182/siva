@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Support\Str;
 
 class UsersSeeder extends Seeder
@@ -27,7 +29,7 @@ class UsersSeeder extends Seeder
         ]);
 
         for ($i = 1; $i < 50; $i++) {
-                User::create([
+                $user = User::create([
                 'name' => 'Test ' . $i,
                 'lastname' => 'TestLastname ' . $i,
                 'status'=>0,
@@ -36,6 +38,9 @@ class UsersSeeder extends Seeder
                 'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
                 'remember_token' => Str::random(10),
             ]);
+
+            $role = Role::where('id',4)->first();
+            $user->syncRoles($role);
         }
     }
 }
