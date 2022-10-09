@@ -14,9 +14,6 @@
     filters: Object,
   })
   
-  // const form = useForm({
-  //   roles: [],
-  // });
   const users = toRefs(props).users
   const roles = toRefs(props).roles
   const swal = inject('$swal')
@@ -30,6 +27,8 @@
   // const filters = ref(props.filters);php 
   const perPage = ref(props.perPage);
   const estadoModalCreate = ref(false);
+  const estadoModalShow = ref(false)
+  const selectedRoles = ref([])
   
   watch(search, (value) => {
     Inertia.get(route('admin.users.index'),
@@ -51,7 +50,7 @@
       });
   }
   
-  function destroy(user) {
+  const destroy = (user) => {
     // if (confirm("Are you sure you want to Delete")) {
     //     form.delete(route('admin.users.destroy', user));
     // }
@@ -69,7 +68,7 @@
     }).then((result) => {
       if (result.isConfirmed) {
         // Inertia.patch(route('admin.users.inactivate',user)),
-        form.delete(route('admin.users.destroy', user));
+        formUser.delete(route('admin.users.destroy', user));
         swal.fire(
           "Eliminado",
           "Usuario ha sido eliminado.",
@@ -182,6 +181,7 @@
   
   const closeModal = () => {
       estadoModalCreate.value = false
+      estadoModalShow.value = false
       formUser.reset()
       error.name = ''
       error.lastname = ''
@@ -190,6 +190,16 @@
       loading.value = false
       // this.estadoModalShow = false
       // this.estadoModalEdit = false
+  }
+
+  const showModal = (user) => {
+    estadoModalCreate.value = false
+    estadoModalShow.value = true
+    // estadoModalEdit.value = false
+    formUser.name = user.name
+    formUser.lastname = user.lastname
+    formUser.email = user.email
+    selectedRoles.value = user.roles.map(item => item.id)
   }
   
   const formUser = useForm({
@@ -427,7 +437,7 @@
                       </span>
                   </td>
                   <td class="py-3 text-sm flex space-x-4">
-                    <Icon name="eye" class="h-5 w-5 cursor-pointer text-blue-500" />
+                    <Icon name="eye" class="h-5 w-5 cursor-pointer text-blue-500" @click="showModal(user)" />
                     <Icon name="edit" class="h-5 w-5 cursor-pointer text-orange-500" />
                     <Icon name="trash" class="h-5 w-5 cursor-pointer text-red-500" @click="destroy(user)" />
                   </td>
@@ -442,6 +452,7 @@
         </div>
       </div>
       <!-- End Content -->
+      <!-- Create Modal -->
       <jet-dialog-modal v-if="estadoModalCreate == true" :show="estadoModalCreate" @close="estadoModalCreate = false"
         max-width="lg">
         <template #title>
@@ -512,17 +523,58 @@
                 </svg>
                 Create
               </button>
-              <!-- <button type="button" class="flex ml-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" disabled>
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Cargando...
-              </button> -->
             </div>
           </form>
         </template>
       </jet-dialog-modal>
+      <!-- End Create Modal -->
+      <!--  Show Modal -->
+      <jet-dialog-modal v-if="estadoModalShow == true" :show="estadoModalShow" @close="estadoModalShow = false" max-width="lg">
+            <template #title>
+                <p class="text-lg flex items-center justify-center font-bold uppercase">Show user</p>
+            </template>
+            <template #content>    
+                    <div class="mb-4">
+                            <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="Name">
+                                Name
+                            </label>
+                            <span class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"> {{formUser.name}} </span>
+                    </div>
+                    <div class="mb-4">
+                            <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="LastName">
+                                LastName
+                            </label>
+                            <span class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"> {{formUser.lastname}} </span>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="email">
+                            Email
+                        </label>
+                        <span class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"> {{formUser.email}} </span>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="role">Role</label>
+                        <div class="grid grid-cols-3 gap-2 bg-gray-100 dark:bg-gray-800 rounded">
+                            <div v-for="role in roles" :key="role.id">
+                                <label class="inline-flex items-center text-xs m-2">
+                                    <input type="checkbox" 
+                                    v-model="selectedRoles"                         
+                                    :value="role.id"
+                                    class="form-checkbox rounded"
+                                    disabled/>
+                                    <span class="mx-2">{{ role.name }}</span>
+                                </label>
+                            </div>
+                        </div>                            
+                    </div>                   
+                    <div class='flex items-center justify-center'>
+                        <button class="flex items-center justify-center bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full" @click="closeModal">
+                            <span class="text-sm">Close</span>
+                        </button>
+                    </div>
+            </template>
+        </jet-dialog-modal>
+        <!-- End Show Modal -->
     </AdminLayout>
   </template>
   

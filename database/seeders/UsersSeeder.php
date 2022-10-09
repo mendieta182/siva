@@ -18,7 +18,7 @@ class UsersSeeder extends Seeder
      */
     public function run()
     {
-        User::create([
+        $super_admin=User::create([
             'name'=>'Pablo Fernando',
             'lastname'=>'Mendieta Mayurí',
             'email'=>'mendieta182@hotmail.com',
@@ -27,6 +27,8 @@ class UsersSeeder extends Seeder
             'email_verified_at' => now(),
             'remember_token' => Str::random(10)
         ]);
+        $role_admmin=Role::where('id',1)->first();
+        $super_admin->syncRoles($role_admmin);
 
         for ($i = 1; $i < 50; $i++) {
                 $user = User::create([
