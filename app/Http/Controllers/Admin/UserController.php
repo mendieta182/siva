@@ -6,6 +6,7 @@ use App\Models\Role;
 use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 
@@ -108,9 +109,24 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user)
     {
-        //
+        // dd($request->all());
+        $this->validate($request,[
+            'name'=>['required','max:50','min:2'],
+            'lastname'=>['required','max:50','min:2'],
+            'roles'=>['required'],
+            'email' => ['required','max:50','min:2', 'email', Rule::unique('users')->ignore($user->id)],
+        ]);
+
+        $user->syncRoles($request->roles);
+
+        $user->update([
+            'name'=>$request->name,
+            'lastname'=>$request->lastname,
+            'email'=>$request->email
+        ]);
+        return back();
     }
 
     /**
