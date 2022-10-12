@@ -41,7 +41,8 @@
             :class="route().current('admin.roles.*') ? 'bg-gray-200 text-gray-800':'hover:bg-blue-50'">
             <span v-if="route().current('admin.roles.*')" 
               class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-lg rounded-br-lg"
-              aria-hidden="true"></span>
+              aria-hidden="true">
+            </span>
             <Link :href="route('admin.roles.index')" 
               class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
               >
@@ -54,13 +55,18 @@
               <span class="ml-4">{{ $t("Roles") }}</span>
             </Link>
           </li>          
-          <li class="relative px-6 py-3">
-            <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-              href="{{ route('admin.charts') }}">              
-              
+          <li class="relative px-6 py-3"
+            :class="route().current('admin.permissions.*') ? 'bg-gray-200 text-gray-800':'hover:bg-blue-50'">
+            <span v-if="route().current('admin.permissions.*')" 
+              class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-lg rounded-br-lg"
+              aria-hidden="true">
+            </span>
+            <Link :href="route('admin.permissions.index')" 
+              class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
+              > 
               <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 55.395 57.691" viewBox="0 0 55.395 57.691"><path fill="none" stroke="#44444d" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3.692" d="M33.577,33.803c1.839,5.434,0.878,12.664-3.688,17.229c-6.419,6.42-16.815,6.418-23.231,0.002C0.243,44.619,0.24,34.221,6.66,27.802c4.578-4.575,11.743-5.604,17.184-3.752"/><path fill="none" stroke="#44444d" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3.692" d="M18.01 39.682c1.628 1.627 1.628 4.27 0 5.898-1.628 1.625-4.27 1.625-5.897-.002-1.627-1.627-1.627-4.27 0-5.896C13.741 38.055 16.382 38.055 18.01 39.682zM53.44 9.359c.406 2.838-.39 4.966-1.403 5.978-.981.981-3.402-.403-4.298.495-.806.803.148 3.655-.493 4.295-.966.969-3.188-.613-4.296.491-.651.651.164 3.642-.489 4.295-.594.595-3.327-.477-4.299.494-.933.935.141 3.663-.492 4.298-2.19 2.192-4.048 4.047-4.048 4.047M23.95 24.1c6.629-6.629 18.261-18.259 20.973-20.971 2.156-2.157 5.193-1.559 6.671 1.517"/><line x1="28.822" x2="51.594" y1="27.417" y2="4.646" fill="none" stroke="#44444d" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3.692"/></svg>
               <span class="ml-4">{{ $t("Permissions") }}</span>
-            </a>
+          </Link>
           </li>
         </ul>
         <div class="px-6 my-6">

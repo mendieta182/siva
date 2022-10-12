@@ -122,8 +122,8 @@ class UserController extends Controller
         $user->syncRoles($request->roles);
 
         $user->update([
-            'name'=>$request->name,
-            'lastname'=>$request->lastname,
+            'name'=>ucwords(strtolower($request->name)), 
+            'lastname'=>ucwords(strtolower($request->lastname)),
             'email'=>$request->email
         ]);
         return back();

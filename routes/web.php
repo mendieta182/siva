@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\DashboardController;
 
 /*
@@ -71,8 +72,8 @@ Route::prefix('admin')->name('admin.')
     Route::resource('users',UserController::class)
         ->except(['create','show','edit']);
 
-    // Route::resource('permissions',PermissionController::class)
-    //     ->except(['create','show','edit']);
+    Route::resource('permissions',PermissionController::class)
+        ->except(['create','show','edit']);
 
     // Route::resource('roles',RoleController::class)
     //     ->except(['create','show','edit']);

@@ -8,14 +8,11 @@ import { useForm } from '@inertiajs/inertia-vue3'
 import JetDialogModal from '@/Jetstream/DialogModal.vue'
 
 const props = defineProps({
-  users: Object,
-  roles: Object,
+  permissions: Object,
   perPage: Number,
-  filters: Object,
 })
 
-const users = toRefs(props).users
-const roles = toRefs(props).roles
+const permissions = toRefs(props).permissions
 const swal = inject('$swal')
 const loading = ref(false)
 
@@ -23,16 +20,14 @@ const load = () => {
   loading.value = true
 }
 
-const search = ref(props.filters.search);
-// const filters = ref(props.filters);php 
+const search = ref(props.search);
 const perPage = ref(props.perPage);
 const estadoModalCreate = ref(false);
 const estadoModalShow = ref(false)
 const estadoModalEdit = ref(false)
-const selectedRoles = ref([])
 
 watch(search, (value) => {
-  Inertia.get(route('admin.users.index'),
+  Inertia.get(route('admin.permissions.index'),
     { search: value, perPage: perPage.value },
     {
       preserveState: true,
@@ -42,8 +37,8 @@ watch(search, (value) => {
 
 
 
-function getUsers() {
-  Inertia.get(route('admin.users.index'),
+function getPermissions() {
+  Inertia.get(route('admin.permissions.index'),
     { perPage: perPage.value, search: search.value },
     {
       preserveState: true,
@@ -51,12 +46,8 @@ function getUsers() {
     });
 }
 
-const destroy = (user) => {
-  // if (confirm("Are you sure you want to Delete")) {
-  //     form.delete(route('admin.users.destroy', user));
-  // }
+const destroy = (permission) => {
   swal.fire({
-    // title: frenchkiss.t('title', {}, lang),
     title: 'Estas seguro?',
     text: "¡No podrás revertir esto!",
     width: '400px',
@@ -68,52 +59,27 @@ const destroy = (user) => {
     cancelButtonText: "¡No, cancelar!"
   }).then((result) => {
     if (result.isConfirmed) {
-      // Inertia.patch(route('admin.users.inactivate',user)),
-      formUser.delete(route('admin.users.destroy', user));
+      formPermission.delete(route('admin.permissions.destroy', permission));
       swal.fire(
         "Eliminado",
-        "Usuario ha sido eliminado.",
+        "Permiso ha sido eliminado.",
         "success"
       )
     }
     if (result.dismiss === "cancel") {
       swal.fire(
         "Cancelado",
-        "Usuario esta a salvo :)",
+        "Permiso esta a salvo :)",
         "error"
       )
     }
   })
 }
 
-// function inactivateUser(user) {
-//   form.patch(route('admin.users.inactivate',user), {
-//     preserveScroll:true                            
-//   })
-// frenchkiss.set('en', { 
-//   title: 'Are you sure?',
-//   text: "User will not be able to login!",
-//   confirmButtonText: 'Yes, inactivate it!',
-//   cancelButtonText: "No, cancel!",
-//   Inactivated: "Inactivated!"
-// })
-// frenchkiss.set('es', { 
-//   title: 'Estas seguro?',
-//   text: "Usuario no podrá iniciar sesión!",
-//   confirmButtonText: '¡Sí, desactívalo!',
-//   cancelButtonText: "¡No, cancelar!" ,
-//   Inactivated: "Inactivado!"
-// })
-// frenchkiss.locale('es');
-// frenchkiss.fallback('en');
-
-// const inactivateUser = (user, lang) => {
-const inactivateUser = (user) => {
-  // Inertia.patch(route('admin.users.inactivate',user))
+const inactivatePermission = (permission) => {
   swal.fire({
-    // title: frenchkiss.t('title', {}, lang),
     title: 'Estas seguro?',
-    text: "Usuario no podrá iniciar sesión!",
+    text: "Permiso no podrá iniciar sesión!",
     width: '400px',
     icon: 'warning',
     showCancelButton: true,
@@ -123,28 +89,27 @@ const inactivateUser = (user) => {
     cancelButtonText: "¡No, cancelar!"
   }).then((result) => {
     if (result.isConfirmed) {
-      Inertia.patch(route('admin.users.inactivate', user)),
+      Inertia.patch(route('admin.permissions.inactivate', permission)),
         swal.fire(
           "Inactivado",
-          "Usuario ha sido inactivado.",
+          "Permiso ha sido inactivado.",
           "success"
         )
     }
     if (result.dismiss === "cancel") {
       swal.fire(
         "Cancelado",
-        "Usuario esta a salvo :)",
+        "Permiso esta a salvo :)",
         "error"
       )
     }
   })
 }
 
-const activateUser = (user) => {
-  // Inertia.patch(route('admin.users.activate',user))
+const activatePermission = (permission) => {
   swal.fire({
     title: 'Estas seguro?',
-    text: "Usuario ya podrá iniciar sesión!",
+    text: "Permiso ya podrá iniciar sesión!",
     width: '400px',
     icon: 'warning',
     showCancelButton: true,
@@ -154,17 +119,17 @@ const activateUser = (user) => {
     cancelButtonText: "¡No, cancelar!"
   }).then((result) => {
     if (result.isConfirmed) {
-      Inertia.patch(route('admin.users.activate', user)),
+      Inertia.patch(route('admin.permissions.activate', permission)),
         swal.fire(
           "Activado",
-          "Usuario ha sido activado.",
+          "Permiso ha sido activado.",
           "success"
         )
     }
     if (result.dismiss === "cancel") {
       swal.fire(
         "Cancelado",
-        "Usuario esta a salvo :)",
+        "Permiso esta a salvo :)",
         "error"
       )
     }
@@ -172,11 +137,8 @@ const activateUser = (user) => {
 }
 
 const openModalCreate = () => {
-  formUser.reset()
-  error.name = ''
-  error.lastname = ''
-  error.email = ''
-  error.roles = ''
+  // formPermission.reset()
+  // error.name = ''
   estadoModalCreate.value = true
 }
 
@@ -184,59 +146,40 @@ const closeModal = () => {
   estadoModalCreate.value = false
   estadoModalEdit.value = false
   estadoModalShow.value = false
-  formUser.reset()
+  formPermission.reset()
   error.name = ''
-  error.lastname = ''
-  error.email = ''
-  error.roles = ''
   loading.value = false
 }
 
-const showModal = (user) => {
+const showModal = (permission) => {
   estadoModalCreate.value = false
   estadoModalShow.value = true
   estadoModalEdit.value = false
-  formUser.name = user.name
-  formUser.lastname = user.lastname
-  formUser.email = user.email
-  selectedRoles.value = user.roles.map(item => item.id)
+  formPermission.name = permission.name
 }
 
-const editModal = (user) => {
+const editModal = (permission) => {
   estadoModalCreate.value = false
   estadoModalShow.value = false
   estadoModalEdit.value = true
   error.name = ''
-  error.lastname = ''
-  error.email = ''
-  error.roles = ''
-  formUser.id = user.id
-  formUser.name = user.name
-  formUser.lastname = user.lastname
-  formUser.email = user.email
-  selectedRoles.value = user.roles.map(item => item.id)
+  formPermission.id = permission.id
+  formPermission.name = permission.name
 }
 
 
 
-const formUser = useForm({
+const formPermission = useForm({
   id: '',
-  name: '',
-  lastname: '',
-  email: '',
-  password: '',
-  roles: []
+  name: ''
 })
 
 const error = reactive({
-  name: '',
-  email: '',
-  lastname: '',
-  roles: ''
+  name: ''
 })
 
-const createUser = () => {
-  Inertia.post(route('admin.users.store'), formUser, {
+const createPermission = () => {
+  Inertia.post(route('admin.permissions.store'), formPermission, {
     preserveScroll: true,
     loading: true,
     onSuccess: () => {
@@ -254,21 +197,18 @@ const createUser = () => {
       })
       Toast.fire({
         icon: 'success',
-        title: 'Successfully created user'
+        title: 'Successfully created permission'
       })
     },
     onError: errors => {
       error.name = errors.name
-      error.lastname = errors.lastname
-      error.email = errors.email
-      error.roles = errors.roles
       loading.value = false
     }
   })
 }
 
-const updateUser = () => {
-  Inertia.patch(route('admin.users.update',formUser.id,formUser.roles=selectedRoles),formUser, {
+const updatePermission = () => {
+  Inertia.patch(route('admin.permissions.update',formPermission.id),formPermission, {
     preserveScroll: true,
     loading: true,
     onSuccess: () => {
@@ -286,14 +226,11 @@ const updateUser = () => {
       })
       Toast.fire({
         icon: 'success',
-        title: 'Successfully updated user'
+        title: 'Successfully updated permission'
       })
     },
     onError: errors => {
       error.name = errors.name
-      error.lastname = errors.lastname
-      error.email = errors.email
-      error.roles = errors.roles
       loading.value = false
     }
   })
@@ -334,7 +271,7 @@ const updateUser = () => {
                 </span>
                 <div class="flex flex-col">
                   <span class="font-bold text-md text-black dark:text-white ml-2">
-                    {{ $t('Users') }}
+                    {{ $t('Permissions') }}
                   </span>
                 </div>
               </div>
@@ -387,33 +324,9 @@ const updateUser = () => {
                   class="w-1/3 pl-10 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                   id="Name" type="text" :placeholder="$t('Name')" v-model="search" />
               </div>
-              <!-- <div class="relative flex-1 ml-4">
-                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current text-gray-500">
-                      <path
-                        d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z">
-                      </path>
-                    </svg>
-                  </div>
-                  <input class="w-full pl-10 text-sm rounded border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
-                    id="Email" type="text" :placeholder="$t('Email')" 
-                    v-model="email_search"/>
-                </div> -->
               <div class="flex space-x-3 ml-3">
-
-                <!-- <div class="relative">
-                    <select
-                      class="inline-flex items-center transition-default whitespace-nowrap text-sm  pl-4 pr-7 py-2 border leading-5 font-medium shadow-sm rounded-md border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
-                      <option :value="null">All Status</option>
-                      <option value="1"><span class="inline-block rounded-full w-2 h-2 mr-2.5 bg-green-400"></span> Active
-                      </option>
-                      <option value="0"><span class="inline-block rounded-full w-2 h-2 mr-2.5 bg-red-400"></span> Inactive
-                      </option>
-                    </select>
-                  </div> -->
-
                 <div class="relative">
-                  <select v-model="perPage" @change="getUsers"
+                  <select v-model="perPage" @change="getPermissions"
                     class="inline-flex items-center transition-default whitespace-nowrap text-sm  pl-4 pr-7 py-2 border leading-5 font-medium shadow-sm rounded-md border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
                     <option value="5">5</option>
                     <option value="10">10</option>
@@ -434,18 +347,18 @@ const updateUser = () => {
                 class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
                 <th class="px-4 py-3">#</th>
                 <th class="px-4 py-3">{{ $t('Name') }}</th>
+                <th class="px-4 py-3">{{ $t('Guard_name') }}</th>
                 <th class="px-4 py-3">{{ $t('Created_at') }}</th>
-                <th class="px-4 py-3">{{ $t('Status') }}</th>
-                <th class="px-4 py-3">{{ $t('Role') }}</th>
+                <th class="px-4 py-3">{{ $t('Update_at') }}</th>
                 <th class="px-4 py-3">{{ $t('Actions') }}</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
-              <tr class="text-gray-700 dark:text-gray-400" v-for="(user,index) in users.data" key="user.id">
+              <tr class="text-gray-700 dark:text-gray-400" v-for="(permission,index) in permissions.data" key="permission.id">
                 <td class="px-4 py-3 text-sm">
-                  <!-- {{ user.id }} -->
-                  {{ (index+1) + $page.props.users.current_page * $page.props.users.per_page -
-                  $page.props.users.per_page }}
+                  <!-- {{ permission.id }} -->
+                  {{ (index+1) + $page.props.permissions.current_page * $page.props.permissions.per_page -
+                  $page.props.permissions.per_page }}
                 </td>
                 <td class="px-4 py-3">
                   <div class="flex items-center text-sm">
@@ -457,46 +370,30 @@ const updateUser = () => {
                       <div class="absolute inset-0 rounded-full shadow-inner" aria-hidden="true"></div>
                     </div>
                     <div>
-                      <p class="font-semibold">{{ user.name }}</p>
-                      <p class="text-xs text-gray-600 dark:text-gray-400">
-                        {{ user.email }}
-                      </p>
+                      <p class="font-semibold">{{ permission.name }}</p>
                     </div>
                   </div>
                 </td>
                 <td class="px-4 py-3 text-sm">
-                  {{ user.created_at }}
+                  {{ permission.guard_name }}
                 </td>
-                <td class="px-4 py-3 text-xs">
-                  <!-- <span class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100"> -->
-                  <!-- {{ user.status }} -->
-                  <button v-if="user.status==1" @click="inactivateUser(user)"
-                    class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">
-                    {{ $t('Activated') }}
-                  </button>
-                  <button v-else @click="activateUser(user)"
-                    class="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full dark:bg-red-700 dark:text-red-100">
-                    {{ $t('Inactivated') }}
-                  </button>
-                  <!-- </span> -->
+                <td class="px-4 py-3 text-sm">
+                  {{ permission.created_at }}
                 </td>
-                <td class="px-4 py-3 text-xs justify-between">
-                  <span v-for="(role,index) in user.roles" :key="index"
-                    class="inline-flex items-center justify-center px-2 py-1 mr-2  font-semibold leading-tight text-cyan-700 bg-cyan-100 rounded-full dark:bg-cyan-700 dark:text-cyan-100 md:mb-1">
-                    {{ role.name }}
-                  </span>
+                <td class="px-4 py-3 text-sm">
+                  {{ permission.updated_at }}
                 </td>
                 <td class="py-3 text-sm flex space-x-4">
-                  <Icon name="eye" class="h-5 w-5 cursor-pointer text-blue-500" @click="showModal(user)" />
-                  <Icon name="edit" class="h-5 w-5 cursor-pointer text-orange-500" @click="editModal(user)" />
-                  <Icon name="trash" class="h-5 w-5 cursor-pointer text-red-500" @click="destroy(user)" />
+                  <Icon name="eye" class="h-5 w-5 cursor-pointer text-blue-500" @click="showModal(permission)" />
+                  <Icon name="edit" class="h-5 w-5 cursor-pointer text-orange-500" @click="editModal(permission)" />
+                  <Icon name="trash" class="h-5 w-5 cursor-pointer text-red-500" @click="destroy(permission)" />
                 </td>
               </tr>
             </tbody>
           </table>
           <!-- End Table -->
           <!-- Pagination -->
-          <Pagination :data="users"></Pagination>
+          <Pagination :data="permissions"></Pagination>
           <!-- End Pagination -->
         </div>
       </div>
@@ -517,51 +414,19 @@ const updateUser = () => {
           <span class="sr-only">Close modal</span>
         </button>
         <div class="flex justify-center">
-          <h3 class="ml-2 text-2xl font-bold text-center">New user</h3>
+          <h3 class="ml-2 text-2xl font-bold text-center">New permission</h3>
         </div>
       </template>
       <template #content>
-        <form class="px-2 bg-white dark:bg-gray-700 rounded" @submit.prevent="createUser">
+        <form class="px-2 bg-white dark:bg-gray-700 rounded" @submit.prevent="createPermission">
           <div class="mb-2">
             <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="Name">
               {{ $t('Name') }}
             </label>
-            <input v-model="formUser.name" :class="error.name ? 'border-red-500':''"
-              class="capitalize bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+            <input v-model="formPermission.name" :class="error.name ? 'border-red-500':''"
+              class="lowercase bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
               id="Name" type="text" :placeholder="$t('Name')" />
             <p v-if="error.name" class="text-xs italic text-red-500">{{ error.name }}</p>
-          </div>
-          <div class="mb-2">
-            <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="LastName">
-              LastName
-            </label>
-            <input v-model="formUser.lastname" :class="error.lastname ? 'border-red-500':''"
-              class="capitalize bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-              id="LastName" type="text" placeholder="LastName" />
-            <p v-if="error.lastname" class="text-xs italic text-red-500">{{ error.lastname }}</p>
-          </div>
-          <div class="mb-2">
-            <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="email">
-              Email
-            </label>
-            <input v-model="formUser.email" :class="error.email ? 'border-red-500':''"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-              id="email" type="email" :placeholder="$t('Email')" />
-            <p v-if="error.email" class="text-xs italic text-red-500">{{ error.email }}</p>
-          </div>
-          <div class="mb-2">
-            <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="role">Role</label>
-            <div class="grid grid-cols-3 gap-2 bg-gray-100 dark:bg-gray-800 rounded">
-              <div v-for="role in roles" :key="role.id">
-                <label class="inline-flex items-center text-xs m-2">
-                  <input type="checkbox" v-model="formUser.roles" :class="error.roles ? 'border-red-500':''"
-                    class="form-checkbox rounded" :value="role.id">
-                  <span class="mx-2">{{ role.name }}</span>
-                </label>
-              </div>
-            </div>
-            <p v-if="error.roles" class="text-xs italic text-red-500 dark:text-red-400">{{ error.roles }}
-            </p>
           </div>
           <div class="flex items-center justify-center">
             <button type="button"
@@ -570,8 +435,8 @@ const updateUser = () => {
               Cancel
             </button>
             <button type="submit" @click="load"
-              :disabled="!formUser.name||!formUser.lastname||!formUser.email||formUser.processing"
-              :class="!formUser.name||!formUser.lastname||!formUser.email ? 'disabled:opacity-50 disabled cursor-not-allowed':''"
+              :disabled="!formPermission.name||formPermission.processing"
+              :class="!formPermission.name ? 'disabled:opacity-50 disabled cursor-not-allowed':''"
               class="flex ml-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
               <svg v-if="loading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
                 fill="none" viewBox="0 0 24 24">
@@ -591,7 +456,7 @@ const updateUser = () => {
     <jet-dialog-modal v-if="estadoModalShow == true" :show="estadoModalShow" @close="estadoModalShow = false"
       max-width="lg">
       <template #title>
-        <p class="text-lg flex items-center justify-center font-bold uppercase">Show user</p>
+        <p class="text-lg flex items-center justify-center font-bold uppercase">Show permission</p>
       </template>
       <template #content>
         <div class="mb-4">
@@ -600,35 +465,7 @@ const updateUser = () => {
           </label>
           <span
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
-            {{formUser.name}} </span>
-        </div>
-        <div class="mb-4">
-          <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="LastName">
-            LastName
-          </label>
-          <span
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
-            {{formUser.lastname}} </span>
-        </div>
-        <div class="mb-4">
-          <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="email">
-            Email
-          </label>
-          <span
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
-            {{formUser.email}} </span>
-        </div>
-        <div class="mb-4">
-          <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="role">Role</label>
-          <div class="grid grid-cols-3 gap-2 bg-gray-100 dark:bg-gray-800 rounded">
-            <div v-for="role in roles" :key="role.id">
-              <label class="inline-flex items-center text-xs m-2">
-                <input type="checkbox" v-model="selectedRoles" :value="role.id" class="form-checkbox rounded"
-                  disabled />
-                <span class="mx-2">{{ role.name }}</span>
-              </label>
-            </div>
-          </div>
+            {{formPermission.name}} </span>
         </div>
         <div class='flex items-center justify-center'>
           <button
@@ -644,50 +481,18 @@ const updateUser = () => {
     <jet-dialog-modal v-if="estadoModalEdit == true" :show="estadoModalEdit" @close="estadoModalEdit = false"
       max-width="lg">
       <template #title>
-        <p class="text-lg flex items-center justify-center font-bold uppercase">Edit user</p>
+        <p class="text-lg flex items-center justify-center font-bold uppercase">Edit permission</p>
       </template>
       <template #content>
-        <form class="px-2 bg-white dark:bg-gray-700 rounded" @submit.prevent="updateUser">
+        <form class="px-2 bg-white dark:bg-gray-700 rounded" @submit.prevent="updatePermission">
           <div class="mb-2">
             <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="Name">
               {{ $t('Name') }}
             </label>
-            <input v-model="formUser.name" :class="error.name ? 'border-red-500':''"
-              class="capitalize bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+            <input v-model="formPermission.name" :class="error.name ? 'border-red-500':''"
+              class="lowercase  bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
               id="Name" type="text" :placeholder="$t('Name')" />
             <p v-if="error.name" class="text-xs italic text-red-500">{{ error.name }}</p>
-          </div>
-          <div class="mb-2">
-            <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="LastName">
-              LastName
-            </label>
-            <input v-model="formUser.lastname" :class="error.lastname ? 'border-red-500':''"
-              class="capitalize bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-              id="LastName" type="text" placeholder="LastName" />
-            <p v-if="error.lastname" class="text-xs italic text-red-500">{{ error.lastname }}</p>
-          </div>
-          <div class="mb-2">
-            <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="email">
-              Email
-            </label>
-            <input v-model="formUser.email" :class="error.email ? 'border-red-500':''"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-              id="email" type="email" :placeholder="$t('Email')" />
-            <p v-if="error.email" class="text-xs italic text-red-500">{{ error.email }}</p>
-          </div>
-          <div class="mb-2">
-            <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="role">Role</label>
-            <div class="grid grid-cols-3 gap-2 bg-gray-100 dark:bg-gray-800 rounded">
-              <div v-for="role in roles" :key="role.id">
-                <label class="inline-flex items-center text-xs m-2">
-                  <input type="checkbox" v-model="selectedRoles" :class="error.roles ? 'border-red-500':''"
-                    class="form-checkbox rounded" :value="role.id">
-                  <span class="mx-2">{{ role.name }}</span>
-                </label>
-              </div>
-            </div>
-            <p v-if="error.roles" class="text-xs italic text-red-500 dark:text-red-400">{{ error.roles }}
-            </p>
           </div>
           <div class="flex items-center justify-center">
             <button type="button"
@@ -696,8 +501,8 @@ const updateUser = () => {
               Cancel
             </button>
             <button type="submit" @click="load"
-              :disabled="!formUser.name||!formUser.lastname||!formUser.email||formUser.processing"
-              :class="!formUser.name||!formUser.lastname||!formUser.email ? 'disabled:opacity-50 disabled cursor-not-allowed':''"
+              :disabled="!formPermission.name||formPermission.processing"
+              :class="!formPermission.name ? 'disabled:opacity-50 disabled cursor-not-allowed':''"
               class="flex ml-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
               <svg v-if="loading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
                 fill="none" viewBox="0 0 24 24">
