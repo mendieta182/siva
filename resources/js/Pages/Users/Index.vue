@@ -1,7 +1,7 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue'
 import Pagination from '@/Components/Pagination.vue'
-import { ref, toRefs, inject, computed, reactive, watch, useTransitionState } from 'vue'
+import { ref, toRefs, inject, reactive, watch } from 'vue'
 import Icon from '@/Shared/Icon.vue'
 import { Inertia } from '@inertiajs/inertia'
 import { useForm } from '@inertiajs/inertia-vue3'
@@ -10,8 +10,8 @@ import JetDialogModal from '@/Jetstream/DialogModal.vue'
 const props = defineProps({
   users: Object,
   roles: Object,
+  search: String,
   perPage: Number,
-  filters: Object,
 })
 
 const users = toRefs(props).users
@@ -23,7 +23,7 @@ const load = () => {
   loading.value = true
 }
 
-const search = ref(props.filters.search);
+const search = ref(props.search);
 // const filters = ref(props.filters);php 
 const perPage = ref(props.perPage);
 const estadoModalCreate = ref(false);
@@ -411,7 +411,6 @@ const updateUser = () => {
                       </option>
                     </select>
                   </div> -->
-
                 <div class="relative">
                   <select v-model="perPage" @change="getUsers"
                     class="inline-flex items-center transition-default whitespace-nowrap text-sm  pl-4 pr-7 py-2 border leading-5 font-medium shadow-sm rounded-md border-gray-300 text-gray-700 bg-white hover:bg-gray-50">

@@ -51,7 +51,7 @@ class PermissionController extends Controller
     {
         $this->validate($request,[
             'name'=>['required','max:25','min:5','unique:permissions,name'],
-            // 'permissions'=>'required',
+            'permissions'=>'required',
         ]);
         $permission=Permission::create([
             'name'=>$request->name,
@@ -96,7 +96,7 @@ class PermissionController extends Controller
             'name'=>['required','max:25','min:5',Rule::unique('permissions')->ignore($permission->id)],
         ]);
 
-        $permission->update(['name'=>$request->name]);
+        $permission->update(['name'=>strtolower($request->name)]);
 
         return back();
     }

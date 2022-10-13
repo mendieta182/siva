@@ -1,12 +1,12 @@
 <?php
 
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\Admin\UserController;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Application;
 use App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\PermissionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,10 +75,6 @@ Route::prefix('admin')->name('admin.')
     Route::resource('permissions',PermissionController::class)
         ->except(['create','show','edit']);
 
-    // Route::resource('roles',RoleController::class)
-    //     ->except(['create','show','edit']);
-
-    Route::get('/roles', function () {
-        return Inertia::render('Roles/Index');
-    })->name('roles.index');
+    Route::resource('roles',RoleController::class)
+        ->except(['create','show','edit']);
 });

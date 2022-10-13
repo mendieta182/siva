@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Role;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Inertia\Inertia;
+
+use Illuminate\Validation\Rule;
 
 class RoleController extends Controller
 {
@@ -14,11 +17,22 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $roles = Role::all();
+
+        $search = $request->has('search') ? $request->search : '';
+        $perPage = $request->has('perPage') ? $request->perPage : '5';
+
+
+        $roles = Role::with('permissions')
+            ->where('name','LIKE','%'.$search.'%')
+            ->paginate($perPage)->withQueryString();
+            
         return Inertia::render('Roles/Index', [
-            'roles' => $roles
+            'permissions' => Permission::all(),
+            'roles' => $roles,
+            'search'=>$search,
+            'perPage'=>$perPage,
         ]);
     }
 
@@ -40,12 +54,23 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request,[
+            'name'=>['required','max:25','min:2','unique:roles,name'],
+            'permissions'=>'required',
+        ]);
+        $role=Role::create([
+            'name'=>ucwords(strtolower($request->name)),
+            'guard_name'=>'web',
+        ]);
+        if ($request->has('permissions')){
+            $role->givePermissionTo($request->permissions);
+        }
+        return back();
     }
 
     /**
      * Display the specified resource.
-     *
+     *s
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -69,22 +94,33 @@ class RoleController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Models\Role  $role
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Role $role)
     {
-        //
+        $this->validate($request,[
+            'name'=>['required','max:25','min:2',Rule::unique('roles')->ignore($role->id)],
+            'permissions'=>'required',
+        ]);
+        if ($request->has('permissions')){
+            $role->givePermissionTo($request->permissions);
+        }
+
+        $role->syncPermissions($request->permissions);
+        $role->update(['name'=>ucwords(strtolower($request->name))]);
+        return back();
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\Models\Role  $role
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Role $role)
     {
-        //
+        $role->delete();
+        return back();
     }
 }

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Role;
 use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 
@@ -124,7 +124,7 @@ class UserController extends Controller
         $user->update([
             'name'=>ucwords(strtolower($request->name)), 
             'lastname'=>ucwords(strtolower($request->lastname)),
-            'email'=>$request->email
+            'email'=>strtolower($request->email)
         ]);
         return back();
     }
