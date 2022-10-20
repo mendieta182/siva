@@ -86,7 +86,7 @@ const destroy = (user) => {
   })
 }
 
-// function inactivateUser(user) {
+// function inactiveUser(user) {
 //   form.patch(route('admin.users.inactivate',user), {
 //     preserveScroll:true                            
 //   })
@@ -107,8 +107,8 @@ const destroy = (user) => {
 // frenchkiss.locale('es');
 // frenchkiss.fallback('en');
 
-// const inactivateUser = (user, lang) => {
-const inactivateUser = (user) => {
+// const inactiveUser = (user, lang) => {
+const inactiveUser = (user) => {
   // Inertia.patch(route('admin.users.inactivate',user))
   swal.fire({
     // title: frenchkiss.t('title', {}, lang),
@@ -140,7 +140,7 @@ const inactivateUser = (user) => {
   })
 }
 
-const activateUser = (user) => {
+const activeUser = (user) => {
   // Inertia.patch(route('admin.users.activate',user))
   swal.fire({
     title: 'Estas seguro?',
@@ -469,13 +469,13 @@ const updateUser = () => {
                 <td class="px-4 py-3 text-xs">
                   <!-- <span class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100"> -->
                   <!-- {{ user.status }} -->
-                  <button v-if="user.status==1" @click="inactivateUser(user)"
+                  <button v-if="user.status==1" @click="inactiveUser(user)"
                     class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">
-                    {{ $t('Activated') }}
+                    {{ $t('Active') }}
                   </button>
-                  <button v-else @click="activateUser(user)"
+                  <button v-else @click="activeUser(user)"
                     class="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full dark:bg-red-700 dark:text-red-100">
-                    {{ $t('Inactivated') }}
+                    {{ $t('Inactive') }}
                   </button>
                   <!-- </span> -->
                 </td>

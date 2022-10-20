@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
+use App\Http\Controllers\Controller;
+use Spatie\Permission\Models\Permission;
 
 
 class DashboardController extends Controller
@@ -16,8 +18,8 @@ class DashboardController extends Controller
         // $ago=$now->subDays(1);
         return Inertia::render('Dashboard/Index',[
             'users_count'=>User::all()->count(),
-            // 'rolesCount'=>Role::all()->count(),
-            // 'permissionsCount'=>Permission::all()->count(),
+            'roles_count'=>Role::all()->count(),
+            'permissions_count'=>Permission::all()->count(),
             // 'admins'=>User::where('is_admin',1)->count()
         ]);
     }

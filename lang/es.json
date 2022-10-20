@@ -8,7 +8,16 @@
     "Search": "Buscar",
     "Add": "Añadir",
     "Activated": "Activado",
-    "Inactivated": "Inactivado"
-
-
+    "Inactivated": "Inactivado",
+    "Active": "Activo",
+    "Inactive": "Inactivo",
+    "Category": "Categoría",
+    "Severity": "Severidad",
+    "Title": "Título",
+    "Description": "Descripción",
+    "Create User": "Crear Usuario",
+    "Create": "Crear",
+    "Incident": "Incidencia",
+    "Incidents": "Incidencias",
+    "Cancel": "Cancelar"
 }

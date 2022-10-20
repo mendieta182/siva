@@ -7,7 +7,15 @@
     "Actions": "Actions",
     "Search": "Search",
     "Add": "Add",
-    "Activated": "Activated",
-    "Inactivated": "Inactivated"
-
+    "Active": "Active",
+    "Inactive": "Inactive",
+    "Category": "Category",
+    "Severity": "Severity",
+    "Title": "Title",
+    "Description": "Description",
+    "Create User": "Create User",
+    "Create": "Create",
+    "Incident": "Incident",
+    "Incidents": "Incidents",
+    "Cancel": "Cancel"
 }

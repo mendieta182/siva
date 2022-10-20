@@ -222,7 +222,7 @@ const updateRole = () => {
                 </span>
                 <div class="flex flex-col">
                   <span class="font-bold text-md text-black dark:text-white ml-2">
-                    {{ $t('roles') }}
+                    {{ $t('Roles') }}
                   </span>
                 </div>
               </div>

@@ -3,6 +3,7 @@
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
+use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -50,17 +51,11 @@ Route::get('/', function () {
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
-//     Route::get('/users', function () {
-//         return Inertia::render('Users/Index');
-//     })->name('users.index');
-//     Route::get('/roles', function () {
-//         return Inertia::render('Roles/Index');
-//     })->name('roles.index');
-// });
 
 Route::prefix('admin')->name('admin.')
     ->middleware(['auth:sanctum','verified'])
     ->group(function (){
+
     Route::get('dashboard',[DashboardController::class,'index'])->name('dashboard.index');
 
     // Route::resource('admins',AdminController::class)
@@ -78,3 +73,12 @@ Route::prefix('admin')->name('admin.')
     Route::resource('roles',RoleController::class)
         ->except(['create','show','edit']);
 });
+
+Route::middleware(['auth:sanctum','verified'])
+    ->group(function (){
+
+        Route::resource('incidents',IncidentController::class)
+        ->except(['create','show','edit']);
+
+});
+
