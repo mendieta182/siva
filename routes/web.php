@@ -6,6 +6,9 @@ use Illuminate\Foundation\Application;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\LevelController;
+use App\Http\Controllers\Admin\ProjectController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PermissionController;
 
@@ -72,6 +75,18 @@ Route::prefix('admin')->name('admin.')
 
     Route::resource('roles',RoleController::class)
         ->except(['create','show','edit']);
+
+    Route::patch('categories/restore/{category}',[CategoryController::class,'restore'])->name('categories.restore');
+    Route::resource('categories',CategoryController::class)
+    ->except(['create','show','edit']);
+
+    Route::patch('levels/restore/{level}',[LevelController::class,'restore'])->name('levels.restore');
+    Route::resource('levels',LevelController::class)
+    ->except(['create','show','edit']);
+
+    Route::patch('projects/restore/{project}',[ProjectController::class,'restore'])->name('projects.restore');
+    Route::resource('projects',ProjectController::class)
+    ->except(['create','show']);
 });
 
 Route::middleware(['auth:sanctum','verified'])

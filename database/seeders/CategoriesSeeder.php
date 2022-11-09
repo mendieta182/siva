@@ -17,25 +17,25 @@ class CategoriesSeeder extends Seeder
     {
         Category::create([
             'name'=>'Categoría A1',
-            'description'=>'',
+            // 'description'=>'',
             'project_id'=>1
         ]);
 
         Category::create([
             'name'=>'Categoría A2',
-            'description'=>'',
+            // 'description'=>'',
             'project_id'=>1
         ]);
 
         Category::create([
             'name'=>'Categoría B1',
-            'description'=>'',
+            // 'description'=>'',
             'project_id'=>2
         ]);
 
         Category::create([
             'name'=>'Categoría B2',
-            'description'=>'',
+            // 'description'=>'',
             'project_id'=>2
         ]);
     }

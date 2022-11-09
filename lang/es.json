@@ -7,8 +7,6 @@
     "Actions": "Acciones",
     "Search": "Buscar",
     "Add": "Añadir",
-    "Activated": "Activado",
-    "Inactivated": "Inactivado",
     "Active": "Activo",
     "Inactive": "Inactivo",
     "Category": "Categoría",
@@ -19,5 +17,8 @@
     "Create": "Crear",
     "Incident": "Incidencia",
     "Incidents": "Incidencias",
-    "Cancel": "Cancelar"
+    "Cancel": "Cancelar",
+    "Pojects": "Pojectos",
+    "Categories": "Categorías",
+    "Levels": "Niveles"
 }

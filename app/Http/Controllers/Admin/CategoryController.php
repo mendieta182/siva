@@ -2,33 +2,21 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Models\Category;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Permission;
-use Inertia\Inertia;
-
+use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
 
-class PermissionController extends Controller
+class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-        $search = $request->has('search') ? $request->search : '';
-        $perPage = $request->has('perPage') ? $request->perPage : '5';
-
-        $permissions=Permission::where('name','LIKE','%'.$search.'%')
-        ->paginate($perPage)->withQueryString();
-
-        return Inertia::render('Permissions/Index', [
-            'permissions' => $permissions,
-            'search' => $search,
-            'perPage'=>$perPage,
-        ]);
+        //
     }
 
     /**
@@ -50,11 +38,13 @@ class PermissionController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,[
-            'name'=>['required','max:25','min:5','unique:permissions,name']
+            'name'=>'required|max:25|min:5|unique:categories,name',
+            'project_id'=>'required'
         ]);
-        $permission=Permission::create([
+
+        Category::create([
             'name'=>$request->name,
-            'guard_name'=>'web',
+            'project_id'=>$request->project_id,
         ]);
 
         return back();
@@ -86,16 +76,20 @@ class PermissionController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Permission  $permission
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Permission $permission)
+    public function update(Request $request, Category $category)
     {
         $this->validate($request,[
-            'name'=>['required','max:25','min:5',Rule::unique('permissions')->ignore($permission->id)],
+            'name'=>['required','max:25','min:5',Rule::unique('categories')->ignore($category->id)]
         ]);
 
-        $permission->update(['name'=>strtolower($request->name)]);
+        $category->update([
+            'name'=>strtolower($request->name),
+        ]);
+
+        // return redirect()->route('admin.projects.index');
 
         return back();
     }
@@ -103,12 +97,19 @@ class PermissionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Permission  $permission
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Permission $permission)
+    public function destroy(Category $category)
     {
-        $permission->delete();
+        $category->delete();
+        return back();
+    }
+
+    public function restore($id)
+    {
+        $category = Category::withTrashed()->find($id);
+        $category->restore();
         return back();
     }
 }

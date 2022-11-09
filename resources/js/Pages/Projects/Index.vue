@@ -1,18 +1,18 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue'
 import Pagination from '@/Components/Pagination.vue'
-import { ref, toRefs, inject, computed, reactive, watch, useTransitionState } from 'vue'
+import { ref, toRefs, inject, reactive, watch } from 'vue'
 import Icon from '@/Shared/Icon.vue'
 import { Inertia } from '@inertiajs/inertia'
 import { useForm } from '@inertiajs/inertia-vue3'
 import JetDialogModal from '@/Jetstream/DialogModal.vue'
 
 const props = defineProps({
-  permissions: Object,
-  perPage: Number,
+  projects: Object,
+  perPage: Number
 })
 
-const permissions = toRefs(props).permissions
+const projects = toRefs(props).projects
 const swal = inject('$swal')
 const loading = ref(false)
 
@@ -27,7 +27,7 @@ const estadoModalShow = ref(false)
 const estadoModalEdit = ref(false)
 
 watch(search, (value) => {
-  Inertia.get(route('admin.permissions.index'),
+  Inertia.get(route('admin.projects.index'),
     { search: value, perPage: perPage.value },
     {
       preserveState: true,
@@ -37,8 +37,8 @@ watch(search, (value) => {
 
 
 
-function getPermissions() {
-  Inertia.get(route('admin.permissions.index'),
+function getProjects() {
+  Inertia.get(route('admin.projects.index'),
     { perPage: perPage.value, search: search.value },
     {
       preserveState: true,
@@ -46,7 +46,7 @@ function getPermissions() {
     });
 }
 
-const destroy = (permission) => {
+const destroy = (project) => {
   swal.fire({
     title: 'Estas seguro?',
     text: "¡No podrás revertir esto!",
@@ -59,85 +59,56 @@ const destroy = (permission) => {
     cancelButtonText: "¡No, cancelar!"
   }).then((result) => {
     if (result.isConfirmed) {
-      formPermission.delete(route('admin.permissions.destroy', permission));
+      formProject.delete(route('admin.projects.destroy', project));
       swal.fire(
         "Eliminado",
-        "Permiso ha sido eliminado.",
+        "Proyecto ha sido eliminado.",
         "success"
       )
     }
     if (result.dismiss === "cancel") {
       swal.fire(
         "Cancelado",
-        "Permiso esta a salvo :)",
+        "Proyecto esta a salvo :)",
         "error"
       )
     }
   })
 }
 
-const inactivatePermission = (permission) => {
+const restore = (project) => {
   swal.fire({
     title: 'Estas seguro?',
-    text: "Permiso no podrá iniciar sesión!",
+    text: "¡No podrás revertir esto!",
     width: '400px',
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
     cancelButtonColor: '#d33',
-    confirmButtonText: '¡Sí, desactívalo!',
+    confirmButtonText: '¡Sí, restaurar!',
     cancelButtonText: "¡No, cancelar!"
   }).then((result) => {
     if (result.isConfirmed) {
-      Inertia.patch(route('admin.permissions.inactivate', permission)),
-        swal.fire(
-          "Inactivado",
-          "Permiso ha sido inactivado.",
-          "success"
-        )
+      formProject.patch(route('admin.projects.restore', project));
+      swal.fire(
+        "Restaurado",
+        "Proyecto ha sido eliminado.",
+        "success"
+      )
     }
     if (result.dismiss === "cancel") {
       swal.fire(
         "Cancelado",
-        "Permiso esta a salvo :)",
+        "Proyecto esta a salvo :)",
         "error"
       )
     }
   })
 }
 
-const activatePermission = (permission) => {
-  swal.fire({
-    title: 'Estas seguro?',
-    text: "Permiso ya podrá iniciar sesión!",
-    width: '400px',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: '¡Sí, actívalo!',
-    cancelButtonText: "¡No, cancelar!"
-  }).then((result) => {
-    if (result.isConfirmed) {
-      Inertia.patch(route('admin.permissions.activate', permission)),
-        swal.fire(
-          "Activado",
-          "Permiso ha sido activado.",
-          "success"
-        )
-    }
-    if (result.dismiss === "cancel") {
-      swal.fire(
-        "Cancelado",
-        "Permiso esta a salvo :)",
-        "error"
-      )
-    }
-  })
-}
 
 const openModalCreate = () => {
-  // formPermission.reset()
+  // formProject.reset()
   // error.name = ''
   estadoModalCreate.value = true
 }
@@ -146,40 +117,47 @@ const closeModal = () => {
   estadoModalCreate.value = false
   estadoModalEdit.value = false
   estadoModalShow.value = false
-  formPermission.reset()
+  formProject.reset()
   error.name = ''
   loading.value = false
 }
 
-const showModal = (permission) => {
+const showModal = (project) => {
   estadoModalCreate.value = false
   estadoModalShow.value = true
   estadoModalEdit.value = false
-  formPermission.name = permission.name
+  formProject.name = project.name
+  formProject.description = project.description
 }
 
-const editModal = (permission) => {
+const editModal = (project) => {
   estadoModalCreate.value = false
   estadoModalShow.value = false
   estadoModalEdit.value = true
   error.name = ''
-  formPermission.id = permission.id
-  formPermission.name = permission.name
+  error.description = ''
+  formProject.id = project.id
+  formProject.name = project.name
+  formProject.description = project.description
 }
 
+const edit = (project) => {
+  Inertia.get(route('admin.projects.edit',project))
+}
 
-
-const formPermission = useForm({
+const formProject = useForm({
   id: '',
-  name: ''
+  name: '',
+  description: ''
 })
 
 const error = reactive({
-  name: ''
+  name: '',
+  description: ''
 })
 
-const createPermission = () => {
-  Inertia.post(route('admin.permissions.store'), formPermission, {
+const createProject = () => {
+  Inertia.post(route('admin.projects.store'), formProject, {
     preserveScroll: true,
     loading: true,
     onSuccess: () => {
@@ -197,18 +175,19 @@ const createPermission = () => {
       })
       Toast.fire({
         icon: 'success',
-        title: 'Successfully created permission'
+        title: 'Successfully created project'
       })
     },
     onError: errors => {
       error.name = errors.name
+      error.description = errors.description
       loading.value = false
     }
   })
 }
 
-const updatePermission = () => {
-  Inertia.patch(route('admin.permissions.update',formPermission.id),formPermission, {
+const updateProject = () => {
+  Inertia.patch(route('admin.projects.update',formProject.id),formProject, {
     preserveScroll: true,
     loading: true,
     onSuccess: () => {
@@ -226,11 +205,12 @@ const updatePermission = () => {
       })
       Toast.fire({
         icon: 'success',
-        title: 'Successfully updated permission'
+        title: 'Successfully updated project'
       })
     },
     onError: errors => {
       error.name = errors.name
+      error.description = errors.description
       loading.value = false
     }
   })
@@ -271,40 +251,14 @@ const updatePermission = () => {
                 </span>
                 <div class="flex flex-col">
                   <span class="font-bold text-md text-black dark:text-white ml-2">
-                    {{ $t('Permissions') }}
+                    {{ $t('Projects') }}
                   </span>
                 </div>
               </div>
               <div @click.prevent="openModalCreate"
                 class="flex items-center text-gray-400 dark:text-white font-semibold hover:font-bold dark:hover:font-bold hover:text-green-900">
                 <button class="p-1 rounded-full text-green-500 dark:text-white">
-                  <svg class="h-6 w-6" fill="currentColor" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
-                    xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512"
-                    style="enable-background:new 0 0 512 512;" xml:space="preserve">
-                    <g>
-                      <g>
-                        <path
-                          d="M257,0C116.39,0,0,114.39,0,255s116.39,257,257,257s255-116.39,255-257S397.61,0,257,0z M392,285H287v107
-                                                c0,16.54-13.47,30-30,30c-16.54,0-30-13.46-30-30V285H120c-16.54,0-30-13.46-30-30c0-16.54,13.46-30,30-30h107V120
-                                                c0-16.54,13.46-30,30-30c16.53,0,30,13.46,30,30v105h105c16.53,0,30,13.46,30,30S408.53,285,392,285z" />
-                      </g>
-                    </g>
-                    <g> </g>
-                    <g> </g>
-                    <g> </g>
-                    <g> </g>
-                    <g> </g>
-                    <g> </g>
-                    <g> </g>
-                    <g> </g>
-                    <g> </g>
-                    <g> </g>
-                    <g> </g>
-                    <g> </g>
-                    <g> </g>
-                    <g> </g>
-                    <g> </g>
-                  </svg>
+                  <Icon name="plus" class="h-5 w-5 cursor-pointer text-green-500" />
                 </button>
                 <button class="text-sm uppercase">
                   <span class="">
@@ -347,18 +301,18 @@ const updatePermission = () => {
                 class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
                 <th class="px-4 py-3">#</th>
                 <th class="px-4 py-3">{{ $t('Name') }}</th>
-                <th class="px-4 py-3">{{ $t('Guard_name') }}</th>
+                <th class="px-4 py-3">{{ $t('Description') }}</th>
                 <th class="px-4 py-3">{{ $t('Created_at') }}</th>
                 <th class="px-4 py-3">{{ $t('Update_at') }}</th>
                 <th class="px-4 py-3">{{ $t('Actions') }}</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
-              <tr class="text-gray-700 dark:text-gray-400" v-for="(permission,index) in permissions.data" key="permission.id">
+              <tr class="text-gray-700 dark:text-gray-400" v-for="(project,index) in projects.data" key="project.id">
                 <td class="px-4 py-3 text-sm">
-                  <!-- {{ permission.id }} -->
-                  {{ (index+1) + $page.props.permissions.current_page * $page.props.permissions.per_page -
-                  $page.props.permissions.per_page }}
+                  <!-- {{ project.id }} -->
+                  {{ (index+1) + $page.props.projects.current_page * $page.props.projects.per_page -
+                  $page.props.projects.per_page }}
                 </td>
                 <td class="px-4 py-3">
                   <div class="flex items-center text-sm">
@@ -370,30 +324,33 @@ const updatePermission = () => {
                       <div class="absolute inset-0 rounded-full shadow-inner" aria-hidden="true"></div>
                     </div>
                     <div>
-                      <p class="font-semibold">{{ permission.name }}</p>
+                      <p class="font-semibold">{{ project.name }}</p>
                     </div>
                   </div>
                 </td>
                 <td class="px-4 py-3 text-sm">
-                  {{ permission.guard_name }}
+                  {{ project.description }}
                 </td>
                 <td class="px-4 py-3 text-sm">
-                  {{ permission.created_at }}
+                  {{ project.created_at }}
                 </td>
                 <td class="px-4 py-3 text-sm">
-                  {{ permission.updated_at }}
+                  {{ project.updated_at }}
                 </td>
-                <td class="py-3 text-sm flex space-x-4">
-                  <Icon name="eye" class="h-5 w-5 cursor-pointer text-blue-500" @click="showModal(permission)" />
-                  <Icon name="edit" class="h-5 w-5 cursor-pointer text-orange-500" @click="editModal(permission)" />
-                  <Icon name="trash" class="h-5 w-5 cursor-pointer text-red-500" @click="destroy(permission)" />
+                <td class="py-3 text-sm flex space-x-4">                  
+                  <Icon name="eye" class="h-5 w-5 cursor-pointer text-blue-500" @click="showModal(project)" />
+                  <Icon v-if="project.deleted_at === null" name="edit" title="Edit" class="h-5 w-5 cursor-pointer text-orange-500" @click="edit(project)" />
+                  <!-- <Icon v-if="project.deleted_at === null" name="edit" title="Edit" class="h-5 w-5 cursor-pointer text-orange-500" @click="editModal(project)" /> -->
+                  <Icon v-if="project.deleted_at === null" name="trash" class="h-5 w-5 cursor-pointer text-red-500" @click="destroy(project)" />
+                  <Icon v-if="project.deleted_at !== null" name="restore" class="h-5 w-5 cursor-pointer text-green-500" @click="restore(project)" />
+                  
                 </td>
               </tr>
             </tbody>
           </table>
           <!-- End Table -->
           <!-- Pagination -->
-          <Pagination :data="permissions"></Pagination>
+          <Pagination :data="projects"></Pagination>
           <!-- End Pagination -->
         </div>
       </div>
@@ -414,27 +371,36 @@ const updatePermission = () => {
           <span class="sr-only">Close modal</span>
         </button>
         <div class="flex justify-center">
-          <h3 class="ml-2 text-2xl font-bold text-center">New permission</h3>
+          <h3 class="ml-2 text-2xl font-bold text-center">New project</h3>
         </div>
       </template>
       <template #content>
-        <form class="px-2 bg-white dark:bg-gray-700 rounded" @submit.prevent="createPermission">
+        <form class="px-2 bg-white dark:bg-gray-700 rounded" @submit.prevent="createProject">
           <!-- <div class="mb-2">
             <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="Name">
               {{ $t('Name') }}
             </label>
-            <input v-model="formPermission.name" :class="error.name ? 'border-red-500':''"
+            <input v-model="formProject.name" :class="error.name ? 'border-red-500':''"
               class="lowercase bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
               id="Name" type="text" :placeholder="$t('Name')" />
             <p v-if="error.name" class="text-xs italic text-red-500">{{ error.name }}</p>
           </div> -->
           <div class="relative h-10 input-component mb-5">
-            <input v-model="formPermission.name" :class="error.name ? 'border-red-500 bg-red-50':''"
+            <input v-model="formProject.name" :class="error.name ? 'border-red-500 bg-red-50':''"
               class="h-full w-full text-sm text-gray-900 border-gray-300 px-2 transition-all border-blue rounded-md" />
             <p v-if="error.name" class="text-xs italic text-red-500">{{ error.name }}</p>
             <label for="name" class="absolute left-2 transition-all bg-white px-1"
             :class="error.name ? 'text-red-500':''">
               {{ $t('Name') }}
+            </label>
+          </div>
+          <div class="relative h-10 input-component mb-5">
+            <input v-model="formProject.description" :class="error.description ? 'border-red-500 bg-red-50':''"
+              class="h-full w-full text-sm text-gray-900 border-gray-300 px-2 transition-all border-blue rounded-md" />
+            <p v-if="error.description" class="text-xs italic text-red-500">{{ error.description }}</p>
+            <label for="description" class="absolute left-2 transition-all bg-white px-1"
+            :class="error.description ? 'text-red-500':''">
+              {{ $t('Description') }}
             </label>
           </div>
           <div class="flex items-center justify-center">
@@ -444,8 +410,8 @@ const updatePermission = () => {
               Cancel
             </button>
             <button type="submit" @click="load"
-              :disabled="!formPermission.name||formPermission.processing"
-              :class="!formPermission.name ? 'disabled:opacity-50 disabled cursor-not-allowed':''"
+              :disabled="!formProject.name||formProject.processing"
+              :class="!formProject.name ? 'disabled:opacity-50 disabled cursor-not-allowed':''"
               class="flex ml-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
               <svg v-if="loading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
                 fill="none" viewBox="0 0 24 24">
@@ -465,7 +431,7 @@ const updatePermission = () => {
     <jet-dialog-modal v-if="estadoModalShow == true" :show="estadoModalShow" @close="estadoModalShow = false"
       max-width="lg">
       <template #title>
-        <p class="text-lg flex items-center justify-center font-bold uppercase">Show permission</p>
+        <p class="text-lg flex items-center justify-center font-bold uppercase">Show project</p>
       </template>
       <template #content>
         <div class="mb-4">
@@ -474,7 +440,15 @@ const updatePermission = () => {
           </label>
           <span
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
-            {{formPermission.name}} </span>
+            {{formProject.name}} </span>
+        </div>
+        <div class="mb-4">
+          <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="Description">
+            Description
+          </label>
+          <span
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+            {{formProject.description}} </span>
         </div>
         <div class='flex items-center justify-center'>
           <button
@@ -490,18 +464,27 @@ const updatePermission = () => {
     <jet-dialog-modal v-if="estadoModalEdit == true" :show="estadoModalEdit" @close="estadoModalEdit = false"
       max-width="lg">
       <template #title>
-        <p class="text-lg flex items-center justify-center font-bold uppercase">Edit permission</p>
+        <p class="text-lg flex items-center justify-center font-bold uppercase">Edit project</p>
       </template>
       <template #content>
-        <form class="px-2 bg-white dark:bg-gray-700 rounded" @submit.prevent="updatePermission">
+        <form class="px-2 bg-white dark:bg-gray-700 rounded" @submit.prevent="updateProject">
           <div class="mb-2">
             <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="Name">
               {{ $t('Name') }}
             </label>
-            <input v-model="formPermission.name" :class="error.name ? 'border-red-500':''"
+            <input v-model="formProject.name" :class="error.name ? 'border-red-500':''"
               class="lowercase  bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
               id="Name" type="text" :placeholder="$t('Name')" />
             <p v-if="error.name" class="text-xs italic text-red-500">{{ error.name }}</p>
+          </div>
+          <div class="mb-2">
+            <label class="block mb-2 text-sm font-bold text-gray-700 dark:text-white" for="Description">
+              {{ $t('Description') }}
+            </label>
+            <input v-model="formProject.description" :class="error.description ? 'border-red-500':''"
+              class="lowercase  bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+              id="description" type="text" :placeholder="$t('Description')" />
+            <p v-if="error.description" class="text-xs italic text-red-500">{{ error.description }}</p>
           </div>
           <div class="flex items-center justify-center">
             <button type="button"
@@ -510,8 +493,8 @@ const updatePermission = () => {
               Cancel
             </button>
             <button type="submit" @click="load"
-              :disabled="!formPermission.name||formPermission.processing"
-              :class="!formPermission.name ? 'disabled:opacity-50 disabled cursor-not-allowed':''"
+              :disabled="!formProject.name||!formProject.description||formProject.processing"
+              :class="!formProject.name||!formProject.description ? 'disabled:opacity-50 disabled cursor-not-allowed':''"
               class="flex ml-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
               <svg v-if="loading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
                 fill="none" viewBox="0 0 24 24">
@@ -606,4 +589,4 @@ select:focus {
 }
 </style>
   
-  
+  s
