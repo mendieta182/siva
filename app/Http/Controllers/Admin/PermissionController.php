@@ -19,7 +19,7 @@ class PermissionController extends Controller
     public function index(Request $request)
     {
         $search = $request->has('search') ? $request->search : '';
-        $perPage = $request->has('perPage') ? $request->perPage : '5';
+        $perPage = $request->has('perPage') ? $request->perPage : 5;
 
         $permissions=Permission::where('name','LIKE','%'.$search.'%')
         ->paginate($perPage)->withQueryString();

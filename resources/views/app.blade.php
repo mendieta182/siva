@@ -5,6 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- <script src="https://cdn.jsdelivr.net/npm/frenchkiss/dist/umd/frenchkiss.js"></script> -->
 
+        <!-- Custom -->
+        <meta name="csrf-token" content="{{ csrf_token() }}" >
+        <meta name="user" content="{{ Auth::user() }}" >
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 

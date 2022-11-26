@@ -55,7 +55,7 @@ class ProjectController extends Controller
             'name'=>['required','max:25','min:5','unique:projects,name'],
             'description'=>['required','min:5'],
         ]);
-        $permission=Permission::create([
+        $permission=Project::create([
             'name'=>$request->name,
             'description'=>$request->description
         ]);
@@ -84,8 +84,7 @@ class ProjectController extends Controller
     {
         $categories = Category::where('project_id',$project['id'])->withTrashed()->get();
         $levels = Level::where('project_id',$project['id'])->withTrashed()->get();
-        // ->withTrashed()->get()
-        // dd($project);
+        
         return Inertia::render('Projects/Edit',[
             'project' => $project,
             // 'categories' => $project->categories,
@@ -135,6 +134,15 @@ class ProjectController extends Controller
     {
         $project = Project::withTrashed()->find($id);
         $project->restore();
+        return back();
+    }
+
+    public function selectProject($id)
+    {
+        $user = auth()->user();
+        $user->selected_project_id = $id;
+        $user->save();
+
         return back();
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User;
 use App\Models\Level;
 use App\Models\Category;
 use Illuminate\Database\Eloquent\Model;
@@ -30,5 +31,15 @@ class Project extends Model
     public function levels()
     {
         return $this->hasMany(Level::class);
+    }
+
+    /**
+     * The users that belong to the Project
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
     }
 }

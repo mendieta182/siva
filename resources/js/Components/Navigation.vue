@@ -27,14 +27,14 @@
             </div>
             <ul class="flex items-center flex-shrink-0 space-x-6">
                 <!-- Project menu -->
-                <li class="relative">
-                    <select id="countries"
+                <!-- <pre>{{ selected_project_id }}</pre> -->
+                <li class="relative" v-if="usePage().props.value.auth.user.selected_project_id != null">
+                    <select id="projects" v-model="selectProject" @change="getProject()"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-32 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                        <option value="PA" selected>Proyecto A</option>
-                        <option value="PB">Proyecto B</option>
-                        <option value="CA">Proyecto C</option>
-                        <option value="FR">Proyecto D</option>
-                        <option value="DE">Proyecto E</option>
+                        <option v-for="project in $page.props.auth.user.list_of_projects" :key="project.id"
+                            :value="project.id" :selected="selectProject.value === project.id">
+                            {{ project.name }}
+                        </option>
                     </select>
                 </li>
                 <!-- Theme toggler -->
@@ -88,8 +88,8 @@
                     <button class="align-middle rounded-full focus:shadow-outline-blue focus:outline-none"
                         @click="toggleLanguageMenu" @keydown.escape="closeLanguageMenu"
                         v-click-outside="closeLanguageMenu" aria-label="Language" aria-haspopup="true">
-                        <Icon name='es' class="h-5 w-5" v-if="$page.props.lang=='es'" />
-                        <Icon name='en' class="h-5 w-5" v-if="$page.props.lang=='en'" />
+                        <Icon name='es' class="h-5 w-5" v-if="$page.props.lang == 'es'" />
+                        <Icon name='en' class="h-5 w-5" v-if="$page.props.lang == 'en'" />
                     </button>
                     <template v-if="isLanguageMenuOpen">
                         <ul @click.away="closeLanguageMenu" @keydown.escape="closeLanguageMenu"
@@ -155,7 +155,7 @@
                             <li class="flex">
                                 <Link
                                     class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                                    :href="route('logout')" method="post">
+                                    :href="route('logout')" method="post" as="button">
                                 <svg class="w-4 h-4 mr-3" aria-hidden="true" fill="none" stroke-linecap="round"
                                     stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
                                     <path
@@ -236,13 +236,29 @@ import { Link } from '@inertiajs/inertia-vue3'
 import Darkmode from "@/Components/Darkmode.vue"
 import Icon from '@/Shared/Icon.vue'
 import { loadLanguageAsync } from 'laravel-vue-i18n'
-import { ref, onMounted, onUnmounted } from 'vue'
-import JetDropdown from '@/Jetstream/Dropdown.vue'
-import JetDropdownLink from '@/Jetstream/DropdownLink.vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { Inertia } from '@inertiajs/inertia'
+import { usePage } from '@inertiajs/inertia-vue3'
+
+const selectProject = computed({
+  get() {
+    return usePage().props.value.auth.user.selected_project_id
+  },
+  set(val) {
+    usePage().props.value.auth.user.selected_project_id = val
+  }
+})
 
 const isNotificationsMenuOpen = ref(false)
 const isProfileMenuOpen = ref(false)
 const isLanguageMenuOpen = ref(false)
+// const selectedProject = ref(null)
+
+
+const getProject = () => {
+    // Inertia.get(route('admin.projects.selectProject', selected_project_id))
+    Inertia.get(route('admin.projects.selectProject', selectProject.value))
+}
 
 const toggleNotificationsMenu = () => {
     isNotificationsMenuOpen.value = !isNotificationsMenuOpen.value

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Project;
+use App\Models\ProjectUser;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
@@ -24,7 +26,7 @@ class UserController extends Controller
 
         $email_search = $request->has('email_search') ? $request->email_search : '';
         
-        $perPage = $request->has('perPage') ? $request->perPage : '5';
+        $perPage = $request->has('perPage') ? $request->perPage : 5;
 
 
 
@@ -97,9 +99,20 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(User $user)
     {
-        //
+        // $user = User::where('project_id',$project['id'])->withTrashed()->get();
+        // $levels = Level::where('project_id',$project['id'])->withTrashed()->get();
+        
+        return Inertia::render('Users/Edit',[
+            'projects' => Project::all(),
+            'projects_user' => ProjectUser::with(['project','level'])->where('user_id',$user->id)->get(),
+            // 'categories' => $project->categories,
+            // 'categories' => $categories,
+            // 'levels' => $levels,
+            'user' => $user,
+            // 'levels' => $project->levels
+        ]);
     }
 
     /**

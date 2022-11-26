@@ -112,4 +112,13 @@ class LevelController extends Controller
         $level->restore();
         return back();
     }
+
+    public function byProject($id)
+    {
+        $levels = Level::where('project_id', $id)->get();
+
+        return response()->json($levels);
+
+        // return back();
+    }
 }

@@ -23,6 +23,7 @@ class UsersSeeder extends Seeder
             'lastname'=>'Mendieta Mayurí',
             'email'=>'mendieta182@hotmail.com',
             'status'=>1,
+            'selected_project_id'=>null,
             'password'=>bcrypt('11111111'),
             'email_verified_at' => now(),
             'remember_token' => Str::random(10)
@@ -35,6 +36,7 @@ class UsersSeeder extends Seeder
                 'name' => 'Test ' . $i,
                 'lastname' => 'TestLastname ' . $i,
                 'status'=>0,
+                'selected_project_id'=>null,
                 'email' => 'test' . $i . '@sge.com',
                 'email_verified_at' => now(),
                 'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password

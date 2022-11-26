@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\ProjectUserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,7 +69,7 @@ Route::prefix('admin')->name('admin.')
     Route::patch('users/activate/{user}',[UserController::class,'activate'])->name('users.activate');
     Route::patch('users/inactivate/{user}',[UserController::class,'inactivate'])->name('users.inactivate');
     Route::resource('users',UserController::class)
-        ->except(['create','show','edit']);
+        ->except(['create','show']);
 
     Route::resource('permissions',PermissionController::class)
         ->except(['create','show','edit']);
@@ -84,9 +85,13 @@ Route::prefix('admin')->name('admin.')
     Route::resource('levels',LevelController::class)
     ->except(['create','show','edit']);
 
+    Route::get('select/project/{id}',[ProjectController::class,'selectProject'])->name('projects.selectProject');
     Route::patch('projects/restore/{project}',[ProjectController::class,'restore'])->name('projects.restore');
     Route::resource('projects',ProjectController::class)
     ->except(['create','show']);
+
+    Route::resource('project-user',ProjectUserController::class)
+        ->except(['create','show','edit']);
 });
 
 Route::middleware(['auth:sanctum','verified'])

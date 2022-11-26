@@ -299,6 +299,10 @@ const updateUser = () => {
   })
 }
 
+const edit = (user) => {
+  Inertia.get(route('admin.users.edit',user))
+}
+
 </script>
   
 <template>
@@ -489,6 +493,7 @@ const updateUser = () => {
                   <Icon name="eye" class="h-5 w-5 cursor-pointer text-blue-500" @click="showModal(user)" />
                   <Icon name="edit" class="h-5 w-5 cursor-pointer text-orange-500" @click="editModal(user)" />
                   <Icon name="trash" class="h-5 w-5 cursor-pointer text-red-500" @click="destroy(user)" />
+                  <Icon name="check" class="h-5 w-5 cursor-pointer text-yellow-500" @click="edit(user)" />                  
                 </td>
               </tr>
             </tbody>

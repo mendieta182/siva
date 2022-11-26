@@ -21,7 +21,7 @@ class RoleController extends Controller
     {
 
         $search = $request->has('search') ? $request->search : '';
-        $perPage = $request->has('perPage') ? $request->perPage : '5';
+        $perPage = $request->has('perPage') ? $request->perPage : 5;
 
 
         $roles = Role::with('permissions')

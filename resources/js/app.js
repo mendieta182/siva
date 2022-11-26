@@ -1,5 +1,6 @@
 import './bootstrap';
 import '../css/app.css';
+/* Custom */
 import ClickOutside from './click-outside'
 
 
@@ -36,7 +37,7 @@ createInertiaApp({
                 }
             })
             .use(VueSweetalert2,options)
-            .directive('click-outside', ClickOutside)            
+            .directive('click-outside', ClickOutside)          
             .mount(el);
     },
 });
