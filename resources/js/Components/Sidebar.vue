@@ -9,12 +9,12 @@
         </div>
         <ul class="mt-5">          
           <li class="relative px-6 py-3 hover:text-gray-800" 
-            :class="route().current('admin.dashboard.*') ? 'bg-gray-200 text-gray-800':'hover:bg-blue-50'">
-            <span v-if="route().current('admin.dashboard.*')" 
+            :class="route().current('dashboard.*') ? 'bg-gray-200 text-gray-800':'hover:bg-blue-50'">
+            <span v-if="route().current('dashboard.*')" 
               class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-lg rounded-br-lg"
               aria-hidden="true">
             </span>
-            <Link :href="route('admin.dashboard.index')"              
+            <Link :href="route('dashboard.index')"              
               class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
               >
               <Icon name="home" class="h-5 w-5" />

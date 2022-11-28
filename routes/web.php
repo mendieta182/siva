@@ -9,7 +9,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\LevelController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProjectUserController;
 
@@ -56,15 +56,11 @@ Route::get('/', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
+Route::middleware(['auth:sanctum','verified'])->get('dashboard',[DashboardController::class,'index'])->name('dashboard.index');
+
 Route::prefix('admin')->name('admin.')
     ->middleware(['auth:sanctum','verified'])
     ->group(function (){
-
-    Route::get('dashboard',[DashboardController::class,'index'])->name('dashboard.index');
-
-    // Route::resource('admins',AdminController::class)
-    //     ->parameters(['admins'=>'user'])
-    //     ->only(['index','update']);
 
     Route::patch('users/activate/{user}',[UserController::class,'activate'])->name('users.activate');
     Route::patch('users/inactivate/{user}',[UserController::class,'inactivate'])->name('users.inactivate');

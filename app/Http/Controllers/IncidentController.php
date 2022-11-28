@@ -50,8 +50,9 @@ class IncidentController extends Controller
             'title'=>'required|min:2',
             'description'=>'required|min:2'
         ]);
-        $permission=Incident::create([
-            'category_id'=>$request->category_id ? : null,
+
+        Incident::create([
+            'category_id'=>$request->category_id,
             'severity'=>$request->severity,
             'title'=>$request->title,
             'description'=>$request->description,

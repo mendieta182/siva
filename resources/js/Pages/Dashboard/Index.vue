@@ -6,7 +6,10 @@ import { Link } from '@inertiajs/inertia-vue3'
 const props = defineProps({
   users_count: Number,
   roles_count: Number,
-  permissions_count: Number
+  permissions_count: Number,
+  my_incidents: Object,
+  pending_incidents: Object,
+  incidents_by_me: Object
 })
 
 </script>
@@ -119,30 +122,30 @@ const props = defineProps({
                   <th class="px-4 py-3 border-b-2 border-blue-500">Severidad</th>
                   <th class="px-4 py-3 border-b-2 border-blue-500">{{ $t('Status') }}</th>
                   <th class="px-4 py-3 border-b-2 border-blue-500">Fecha creación</th>
-                  <th class="px-4 py-3 border-b-2 border-blue-500">Resumen</th>
+                  <th class="px-4 py-3 border-b-2 border-blue-500">{{ $t('Title') }}</th>
                 </tr>
               </thead>
               <tbody class="text-sm font-normal text-gray-700">
-                <tr class="py-10 border-b border-gray-200 hover:bg-gray-100">                  
+                <tr v-for="incident in my_incidents" key="incident.id" class="py-10 border-b border-gray-200 hover:bg-gray-100">                  
                   <td class="px-4 py-4">
-                    1
+                    {{ incident.id }}
                   </td>
                   <td class="px-4 py-4">
-                    480-570-3413
+                    {{ incident.category.name }}
                   </td>
                   <td class="px-4 py-4">
-                    MX-8523537435
+                    {{ incident.severity_full }}
                   </td>
                   <td class="px-4 py-4">
-                    Just Now
+                    {{ incident.status }}
                   </td>
                   <td class="px-4 py-4">
-                    Just Now
+                    {{ incident.created_at }}
                   </td>
                   <td class="px-4 py-4">
-                    Just Now
+                    {{ incident.title_short }}
                   </td>
-                </tr>
+                </tr>                
               </tbody>
             </table>
           </div>
@@ -172,32 +175,32 @@ const props = defineProps({
                   <th class="px-4 py-3 border-b-2 border-red-500">Severidad</th>
                   <th class="px-4 py-3 border-b-2 border-red-500">{{ $t('Status') }}</th>
                   <th class="px-4 py-3 border-b-2 border-red-500">Fecha creación</th>
-                  <th class="px-4 py-3 border-b-2 border-red-500">Resumen</th>
+                  <th class="px-4 py-3 border-b-2 border-red-500">Título</th>
                   <th class="px-4 py-3 border-b-2 border-red-500">Acción</th>
                 </tr>
               </thead>
               <tbody class="text-sm font-normal text-gray-700">
-                <tr class="py-10 border-b border-gray-200 hover:bg-gray-100">                  
+                <tr v-for="incident in pending_incidents" key="incident.id" class="py-10 border-b border-gray-200 hover:bg-gray-100">                  
                   <td class="px-4 py-4">
-                    1
+                    {{ incident.id }}
                   </td>
                   <td class="px-4 py-4">
-                    480-570-3413
+                    {{ incident.category.name }}
                   </td>
                   <td class="px-4 py-4">
-                    MX-8523537435
-                  </td>
-                  <td class="px-4 py-4">
-                    Just Now
+                    {{ incident.severity_full }}
                   </td>
                   <td class="px-4 py-4">
                     Just Now
                   </td>
                   <td class="px-4 py-4">
-                    Just Now
+                    {{ incident.created_at }}
                   </td>
                   <td class="px-4 py-4">
-                    Just Now
+                    {{ incident.title_short }}
+                  </td>
+                  <td class="px-4 py-4">
+                    Atender
                   </td>
                 </tr>
               </tbody>
@@ -205,12 +208,12 @@ const props = defineProps({
           </div>
         </div>
       </div>
-      <!-- Incidents asignadas a otros -->
+      <!-- Incidents asignadas por mi -->
       <div class="mt-3 items-center w-full px-4 py-4 bg-white rounded-lg shadow-md">
         <div class="container">
           <div class="flex justify-between w-full px-4 py-2">
             <div class="text-lg font-bold text-amber-500">
-              Incidencias asignadas a otros
+              Incidencias asignadas por mi
             </div>
             <div class="px-2 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
@@ -234,27 +237,27 @@ const props = defineProps({
                 </tr>
               </thead>
               <tbody class="text-sm font-normal text-gray-700">
-                <tr class="py-10 border-b border-gray-200 hover:bg-gray-100">                  
+                <tr v-for="incident in incidents_by_me" key="incident.id" class="py-10 border-b border-gray-200 hover:bg-gray-100">                  
                   <td class="px-4 py-4">
-                    1
+                    {{ incident.id }}
                   </td>
                   <td class="px-4 py-4">
-                    480-570-3413
+                    {{ incident.category.name }}
                   </td>
                   <td class="px-4 py-4">
-                    MX-8523537435
-                  </td>
-                  <td class="px-4 py-4">
-                    Just Now
+                    {{ incident.severity_full }}
                   </td>
                   <td class="px-4 py-4">
                     Just Now
                   </td>
                   <td class="px-4 py-4">
-                    Just Now
+                    {{ incident.created_at }}
                   </td>
                   <td class="px-4 py-4">
-                    Just Now
+                    {{ incident.title_short }}
+                  </td>
+                  <td class="px-4 py-4">
+                    {{ incident.support_id }}
                   </td>
                 </tr>
               </tbody>

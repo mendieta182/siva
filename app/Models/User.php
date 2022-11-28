@@ -85,4 +85,19 @@ class User extends Authenticatable
 
         return Project::all();
     }
+
+    public function getIsAdminAttribute()
+    {
+        return $this->roles == 'super-admin';
+    }
+
+    public function getIsSupportAttribute()
+    {
+        return $this->roles == 'support';
+    }
+
+    public function getIsClientAttribute()
+    {
+        return $this->roles == 'client';
+    }
 }
