@@ -21,7 +21,7 @@ const props = defineProps({
         {{ $t('Dashboard') }}
       </h2>
       <!-- Cards -->
-      <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
+      <div v-role="'super-admin'" class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
         <!-- Card -->
         <Link :href="route('admin.users.index')"
           class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">

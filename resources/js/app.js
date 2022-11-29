@@ -20,6 +20,10 @@ const options = {
     cancelButtonColor: '#ff7674',
   };
 
+/* Vue Gates */
+import VueGates from 'vue-gates';
+import Permissions from './Plugins/Permissions';
+
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 
@@ -29,6 +33,8 @@ createInertiaApp({
     setup({ el, app, props, plugin }) {
         return createApp({ render: () => h(app, props) })
             .use(plugin)
+            .use(VueGates)
+            .use(Permissions)
             .use(ZiggyVue, Ziggy)
             .use(i18nVue, {
                 resolve: async lang => {
