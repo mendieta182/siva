@@ -28,10 +28,29 @@
             <ul class="flex items-center flex-shrink-0 space-x-6">
                 <!-- Project menu -->
                 <!-- <pre>{{ selected_project_id }}</pre> -->
-                <li class="relative" v-if="usePage().props.value.auth.user.selected_project_id != null">
-                    <select id="projects" v-model="selectProject" @change="getProject()"
+                <li class="relative" v-role:any="'support'">
+                    <select v-if="usePage().props.value.auth.user.selected_project_id != null" id="projects" v-model="selectProject" @change="getProject()"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-32 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <option v-for="project in $page.props.auth.user.list_of_projects" :key="project.id"
+                            :value="project.id" :selected="selectProject.value === project.id">
+                            {{ project.name }}
+                        </option>
+                    </select>
+                </li>
+                <!-- <li class="relative" v-role="'client'">
+                    <select v-if="usePage().props.value.auth.user.selected_project_id != null" id="projects" v-model="selectProject" @change="getProject()"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-32 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option v-for="project in $page.props.auth.user.list_of_projects" :key="project.id"
+                            :value="project.id" :selected="selectProject.value === project.id">
+                            {{ project.name }}
+                        </option>
+                    </select>
+                </li> -->
+                <span>{{ usePage().props.value.auth.user.name }}</span>
+                <li class="relative">
+                    <select id="projects" v-role:any="'client|super-admin'" v-model="selectProject" @change="getProject()"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-32 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option v-for="project in $page.props.list_projects" :key="project.id"
                             :value="project.id" :selected="selectProject.value === project.id">
                             {{ project.name }}
                         </option>
@@ -126,6 +145,12 @@
                         <ul @keydown.escape="closeProfileMenu"
                             class="absolute right-0 w-56 p-2 mt-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-md shadow-md dark:border-gray-700 dark:text-gray-300 dark:bg-gray-700"
                             aria-label="submenu">
+                            <li class="flex bg-gray-50">
+                                <label class="text-center items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                                    href="#">                        
+                                    <span>{{ usePage().props.value.auth.user.name }}</span>
+                                </label>
+                            </li>
                             <li class="flex">
                                 <Link
                                     class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
@@ -252,7 +277,7 @@ const selectProject = computed({
 const isNotificationsMenuOpen = ref(false)
 const isProfileMenuOpen = ref(false)
 const isLanguageMenuOpen = ref(false)
-// const selectedProject = ref(null)
+// const selectProject = ref(null)
 
 
 const getProject = () => {

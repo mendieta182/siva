@@ -93,8 +93,9 @@ Route::prefix('admin')->name('admin.')
 Route::middleware(['auth:sanctum','verified'])
     ->group(function (){
 
-        Route::resource('incidents',IncidentController::class)
-        ->except(['create','show','edit']);
+    Route::patch('incidents/{incident}/attend',[IncidentController::class,'attend'])->name('incidents.attend');
+    Route::resource('incidents',IncidentController::class)
+    ->except(['create','show','edit']);
 
 });
 

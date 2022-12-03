@@ -18,18 +18,18 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        $my_incidents = Incident::with('category')
+        $my_incidents = Incident::with(['category','project','support','client'])
                                 ->where('project_id',$user->selected_project_id)
                                 ->where('support_id',$user->id)->get();
 
         $projectUser = ProjectUser::where('project_id',$user->selected_project_id)
                                   ->where('user_id',$user->id)->first();
         // dd($projectUser->level_id);
-        $pending_incidents = Incident::with('category')
+        $pending_incidents = Incident::with(['category','project','support','client'])
                                      ->where('support_id',null)
                                      ->where('level_id',$projectUser->level->id)->get();
 
-        $incidents_by_me = Incident::with('category')
+        $incidents_by_me = Incident::with(['category','project','support','client'])
                                    ->where('client_id',$user->id)
                                    ->where('project_id',$user->selected_project_id)->get();
         // $now=Carbon::now();
@@ -41,7 +41,6 @@ class DashboardController extends Controller
             'my_incidents'=> $my_incidents,
             'pending_incidents'=>$pending_incidents,
             'incidents_by_me'=>$incidents_by_me
-            // 'admins'=>User::where('is_admin',1)->count()
         ]);
     }
 }

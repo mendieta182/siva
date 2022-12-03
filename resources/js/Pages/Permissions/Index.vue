@@ -23,8 +23,8 @@ const load = () => {
 const search = ref(props.search);
 const perPage = ref(props.perPage);
 const estadoModalCreate = ref(false);
-const estadoModalShow = ref(false)
-const estadoModalEdit = ref(false)
+const estadoModalShow = ref(false);
+const estadoModalEdit = ref(false);
 
 watch(search, (value) => {
   Inertia.get(route('admin.permissions.index'),

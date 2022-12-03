@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('description');
             $table->string('severity',1);
+            $table->boolean('active')->default(1);
 
             $table->unsignedBigInteger('category_id')->nullable(); 
             $table->foreign('category_id')->references('id')->on('categories');

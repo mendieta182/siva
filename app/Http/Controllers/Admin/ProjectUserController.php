@@ -54,7 +54,10 @@ class ProjectUserController extends Controller
             return back();
         
         $user = User::findOrFail($request->user_id);
-        $user->selected_project_id=$request->project_id;
+        if (!$user->selected_project_id) {
+            $user->selected_project_id=$request->project_id;            
+        }
+        // $user->selected_project_id=$request->project_id;
         $user->save();
 
         ProjectUser::create([

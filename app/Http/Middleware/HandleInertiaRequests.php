@@ -2,8 +2,9 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Http\Request;
+use App\Models\Project;
 use Inertia\Middleware;
+use Illuminate\Http\Request;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -50,8 +51,22 @@ class HandleInertiaRequests extends Middleware
 
             // Lazily
             'auth.user' => fn () => $request->user()
-                ? $request->user()->only('id', 'name', 'email', 'selected_project_id','list_of_projects')
+                ? $request->user()->only('id', 'name','lastname', 'email', 'selected_project_id','list_of_projects')
                 : null,
+            // Projects
+            // 'projects' => function() {
+                // $projects = Project::all();
+                // return $projects;
+                // $user = auth()->user();
+                //     return $user ? [
+                //         'roles' => $user->getRoleNames(),
+                //         'permissions' => $user->getAllPermissions()->pluck('name')
+                // ] : null;
+            // },
+
+            
+            'list_projects' => Project::all() ? Project::all() : null
+            
         ]);
     }
 }

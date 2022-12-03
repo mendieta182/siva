@@ -2,6 +2,13 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue'
 import Icon from '@/Shared/Icon.vue'
 import { Link } from '@inertiajs/inertia-vue3'
+import JetDialogModal from '@/Jetstream/DialogModal.vue'
+import { ref, toRefs, inject, computed, reactive, watch, useTransitionState } from 'vue'
+import { useForm } from '@inertiajs/inertia-vue3'
+import { DOMDirectiveTransforms } from '@vue/compiler-dom'
+
+
+
 
 const props = defineProps({
   users_count: Number,
@@ -11,6 +18,73 @@ const props = defineProps({
   pending_incidents: Object,
   incidents_by_me: Object
 })
+
+const estadoModalShow = ref(false);
+const swal = inject('$swal')
+
+const showModal = (incident) => {
+  // estadoModalCreate.value = false
+  estadoModalShow.value = true
+  // estadoModalEdit.value = false
+  formIncident.id = incident.id
+  formIncident.title = incident.title
+  formIncident.description = incident.description
+  formIncident.created_at = incident.created_at
+  formIncident.severity = incident.severity_full
+  formIncident.category_id = incident.category.name
+  formIncident.project_id = incident.project.name
+  formIncident.support_id = incident.support_full
+  formIncident.state = incident.state
+}
+
+const formIncident = useForm({
+  id: '',
+  title: '',
+  description: '',
+  severity: '',
+  category_id: '',
+  support_id: '',
+  state: '',
+})
+
+const attend = (incident) => {
+  swal.fire({
+    title: 'Estas seguro?',
+    text: "¡No podrás revertir esto!",
+    width: '400px',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: '¡Sí, atender!',
+    cancelButtonText: "¡No, cancelar!"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      closeModal()
+      formIncident.patch(route('incidents.attend', incident));
+      swal.fire(
+        "Atendido",
+        "Incidente ha sido atendido.",
+        "success"
+      )
+    }
+    if (result.dismiss === "cancel") {
+      swal.fire(
+        "Cancelado",
+        "Incidente esta a salvo :)",
+        "error"
+      )
+    }
+  })
+}
+
+const closeModal = () => {
+  // estadoModalCreate.value = false
+  // estadoModalEdit.value = false
+  estadoModalShow.value = false
+  formIncident.reset()
+  // loading.value = false
+}
 
 </script>
     
@@ -99,7 +173,7 @@ const props = defineProps({
         </div>
       </div>
       <!-- Incidents asignadas a mí -->
-      <div class="items-center w-full px-4 py-4 bg-white rounded-lg shadow-md">
+      <div v-role:any="'super-admin|support'" class="items-center w-full px-4 py-4 bg-white rounded-lg shadow-md">
         <div class="container">
           <div class="flex justify-between w-full px-4 py-2">
             <div class="text-lg font-bold text-blue-500">
@@ -126,9 +200,13 @@ const props = defineProps({
                 </tr>
               </thead>
               <tbody class="text-sm font-normal text-gray-700">
-                <tr v-for="incident in my_incidents" key="incident.id" class="py-10 border-b border-gray-200 hover:bg-gray-100">                  
+                <tr v-for="incident in my_incidents" key="incident.id"
+                  class="py-10 border-b border-gray-200 hover:bg-gray-100">
                   <td class="px-4 py-4">
                     {{ incident.id }}
+                    <button class="p-2 rounded text-white font-bold bg-orange-500 text-sm" @click="showModal(incident)">
+                      <Icon name="eye" class="h-5 w-5 items-center justify-around" />
+                    </button>
                   </td>
                   <td class="px-4 py-4">
                     {{ incident.category.name }}
@@ -137,7 +215,7 @@ const props = defineProps({
                     {{ incident.severity_full }}
                   </td>
                   <td class="px-4 py-4">
-                    {{ incident.status }}
+                    {{ incident.state }}
                   </td>
                   <td class="px-4 py-4">
                     {{ incident.created_at }}
@@ -145,14 +223,14 @@ const props = defineProps({
                   <td class="px-4 py-4">
                     {{ incident.title_short }}
                   </td>
-                </tr>                
+                </tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
       <!-- Incidents sin asignar -->
-      <div class="mt-3 items-center w-full px-4 py-4 bg-white rounded-lg shadow-md">
+      <div v-role:unless="'client'" class="mt-3 items-center w-full px-4 py-4 bg-white rounded-lg shadow-md">
         <div class="container">
           <div class="flex justify-between w-full px-4 py-2">
             <div class="text-lg font-bold text-red-500">
@@ -180,9 +258,13 @@ const props = defineProps({
                 </tr>
               </thead>
               <tbody class="text-sm font-normal text-gray-700">
-                <tr v-for="incident in pending_incidents" key="incident.id" class="py-10 border-b border-gray-200 hover:bg-gray-100">                  
+                <tr v-for="incident in pending_incidents" key="incident.id"
+                  class="py-10 border-b border-gray-200 hover:bg-gray-100">
                   <td class="px-4 py-4">
                     {{ incident.id }}
+                    <button class="p-2 rounded text-white font-bold bg-orange-500 text-sm" @click="showModal(incident)">
+                      <Icon name="eye" class="h-5 w-5 items-center justify-around" />
+                    </button>
                   </td>
                   <td class="px-4 py-4">
                     {{ incident.category.name }}
@@ -191,7 +273,7 @@ const props = defineProps({
                     {{ incident.severity_full }}
                   </td>
                   <td class="px-4 py-4">
-                    Just Now
+                    {{ incident.state }}
                   </td>
                   <td class="px-4 py-4">
                     {{ incident.created_at }}
@@ -199,8 +281,10 @@ const props = defineProps({
                   <td class="px-4 py-4">
                     {{ incident.title_short }}
                   </td>
-                  <td class="px-4 py-4">
-                    Atender
+                  <td class="px-4 py-4 flex">
+                    <button class="p-2 rounded text-white font-bold bg-orange-500 text-sm" @click="showModal(incident)">
+                      <Icon name="eye" class="h-5 w-5 items-center justify-around" />
+                    </button>
                   </td>
                 </tr>
               </tbody>
@@ -209,7 +293,8 @@ const props = defineProps({
         </div>
       </div>
       <!-- Incidents asignadas por mi -->
-      <div class="mt-3 items-center w-full px-4 py-4 bg-white rounded-lg shadow-md">
+      <div v-role:any="'super-admin|support|client'"
+        class="mt-3 items-center w-full px-4 py-4 bg-white rounded-lg shadow-md">
         <div class="container">
           <div class="flex justify-between w-full px-4 py-2">
             <div class="text-lg font-bold text-amber-500">
@@ -232,14 +317,22 @@ const props = defineProps({
                   <th class="px-4 py-3 border-b-2 border-amber-500">Severidad</th>
                   <th class="px-4 py-3 border-b-2 border-amber-500">{{ $t('Status') }}</th>
                   <th class="px-4 py-3 border-b-2 border-amber-500">Fecha creación</th>
-                  <th class="px-4 py-3 border-b-2 border-amber-500">Resumen</th>
+                  <th class="px-4 py-3 border-b-2 border-amber-500">Título</th>
                   <th class="px-4 py-3 border-b-2 border-amber-500">Responsable</th>
                 </tr>
               </thead>
               <tbody class="text-sm font-normal text-gray-700">
-                <tr v-for="incident in incidents_by_me" key="incident.id" class="py-10 border-b border-gray-200 hover:bg-gray-100">                  
+                <tr v-for="incident in incidents_by_me" key="incident.id"
+                  class="py-10 border-b border-gray-200 hover:bg-gray-100">
                   <td class="px-4 py-4">
-                    {{ incident.id }}
+                    <!-- {{ incident.id }} -->
+                    <button class="px-2 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+                    @click="showModal(incident)">
+                      <Icon name="eye" class="h-4 w-4"/>
+                    </button>
+                    <!-- <button class="p-2 rounded text-white font-bold bg-orange-500 text-sm" >
+                      <Icon name="eye" class="h-5 w-5 items-center justify-around" />
+                    </button> -->
                   </td>
                   <td class="px-4 py-4">
                     {{ incident.category.name }}
@@ -248,7 +341,7 @@ const props = defineProps({
                     {{ incident.severity_full }}
                   </td>
                   <td class="px-4 py-4">
-                    Just Now
+                    {{ incident.state }}
                   </td>
                   <td class="px-4 py-4">
                     {{ incident.created_at }}
@@ -257,7 +350,7 @@ const props = defineProps({
                     {{ incident.title_short }}
                   </td>
                   <td class="px-4 py-4">
-                    {{ incident.support_id }}
+                    {{ incident.support_full }}
                   </td>
                 </tr>
               </tbody>
@@ -266,7 +359,141 @@ const props = defineProps({
         </div>
       </div>
     </div>
+
+    <!--  Show Modal -->
+    <jet-dialog-modal v-if="estadoModalShow == true" :show="estadoModalShow" @close="estadoModalShow = false"
+      max-width="lg">
+      <template #title>
+        <p class="text-lg flex items-center justify-center font-bold uppercase">Show incident</p>
+      </template>
+      <template #content>
+        <div class="grid grid-cols-4">
+          <div class="border border-r-0 p-2 font-bold bg-gray-50">{{ $t('Project') }}</div>
+          <div class="border p-2">{{ formIncident.project_id }}</div>
+          <div class="border border-l-0 border-r-0 p-2 font-bold bg-gray-50">{{ $t('Category') }}</div>
+          <div class="border p-2">{{ formIncident.category_id }}</div>
+          <div class="border border-t-0 border-r-0 p-2 font-bold bg-gray-50">{{ $t('Severity') }}</div>
+          <div class="border border-t-0 p-2">{{ formIncident.severity }}</div>
+          <div class="border border-l-0 border-t-0 border-r-0 p-2 font-bold bg-gray-50">{{ $t('State') }}</div>
+          <div class="border border-t-0 p-2">{{ formIncident.state }}</div>
+          <div class="border border-t-0 border-r-0 p-2 font-bold bg-gray-50">Visibilidad</div>
+          <div class="border border-t-0 p-2">--Público--</div>
+          <div class="border border-l-0 border-t-0 border-r-0 p-2 font-bold bg-gray-50">Fecha envío</div>
+          <div class="border border-t-0 p-2">{{ formIncident.created_at }}</div>
+          <div class="border border-t-0 border-r-0 p-2 font-bold bg-gray-50">Asignada a:</div>
+          <div class="border border-t-0 p-2 col-span-3">{{ formIncident.support_id }}</div>
+        </div>
+        <div class="grid grid-cols-4 my-3">
+          <div class="border border-r-0 p-2 font-bold bg-gray-50">{{ $t('Title') }}</div>
+          <div class="border p-2 col-span-3">{{ formIncident.title }}</div>
+          <div class="border border-r-0 border-t-0 p-2 font-bold bg-gray-50">{{ $t('Description') }}</div>
+          <div class="border border-t-0 p-2 col-span-3">{{ formIncident.description }}</div>
+        </div>
+        <div class='flex items-center justify-center p-2 space-x-1'>
+          <button v-role="'support'" v-if="formIncident.state == 'Pendiente'"
+            class="flex items-center justify-center  bg-violet-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+            @click="attend(formIncident.id)">
+            <span class="text-sm">Atender</span>
+          </button>
+          <button v-role="'client'" v-if="formIncident.state == 'Resuelto'"
+            class="flex items-center justify-center bg-orange-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+            @click="closeModal">
+            <span class="text-sm">Abrir</span>
+          </button>
+          <button v-role="'client'" v-if="formIncident.state == 'Asignado|Pendiente'"
+            class="flex items-center justify-center bg-green-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+            @click="closeModal">
+            <span class="text-sm">Resuelto</span>
+          </button>
+          <button v-role="'support'"
+            class="flex items-center justify-center bg-amber-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+            @click="closeModal">
+            <span class="text-sm">Editar</span>
+          </button>
+          <button v-role="'support'"
+            class="flex items-center justify-center bg-red-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+            @click="closeModal">
+            <span class="text-sm">Derivar</span>
+          </button>
+        </div>
+      </template>
+    </jet-dialog-modal>
+    <!-- End Show Modal -->
   </AdminLayout>
 </template>
-    
-    
+
+<style>
+label {
+  top: 0%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: rgba(37, 99, 235, 1);
+  font-weight: bold;
+}
+
+.empty input:not(:focus)+label {
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+}
+
+input:not(:focus)+label {
+  /* color: rgba(70, 70, 70, 1); */
+  color: rgba(37, 99, 235, 1);
+  font-weight: bold;
+}
+
+input {
+  border-width: 1px;
+}
+
+input:focus {
+  outline: none;
+  border-color: rgba(37, 99, 235, 1);
+  /* font-weight: bold; */
+}
+
+.empty textarea:not(:focus)+label {
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+}
+
+textarea:not(:focus)+label {
+  /* color: rgba(70, 70, 70, 1); */
+  color: rgba(37, 99, 235, 1);
+  font-weight: bold;
+}
+
+textarea {
+  border-width: 1px;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: rgba(37, 99, 235, 1);
+  /* font-weight: bold; */
+}
+
+.empty select:not(:focus)+label {
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+}
+
+select:not(:focus)+label {
+  /* color: rgba(70, 70, 70, 1); */
+  color: rgba(37, 99, 235, 1);
+  font-weight: bold;
+}
+
+select {
+  border-width: 1px;
+}
+
+select:focus {
+  outline: none;
+  border-color: rgba(37, 99, 235, 1);
+  /* font-weight: bold; */
+}
+</style>

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Laravel\Fortify\Fortify;
 use Laravel\Jetstream\Jetstream;
@@ -46,19 +47,23 @@ class JetstreamServiceProvider extends ServiceProvider
         Jetstream::deleteTeamsUsing(DeleteTeam::class);
         Jetstream::deleteUsersUsing(DeleteUser::class);
 
-        // Fortify::authenticateUsing(function (Request $request) {
-        //     $user = User::where('email', $request->email)->first();
+        Fortify::authenticateUsing(function (Request $request) {
+            $user = User::where('email', $request->email)->first();
     
-        //     if ($user &&
-        //         Hash::check($request->password, $user->password)) {
-
-        //             if (!$user->selected_project_id) {
-        //                 $user->selected_project_id = $user->projects->first()->id;
-        //                 $user->save();
-        //             }
-        //         return $user;
-        //     }
-        // });
+            if ($user &&
+                Hash::check($request->password, $user->password)) {
+                    if (!$user->selected_project_id) {                  
+                        if ($user->selected_project_id == null) {
+                            $user->selected_project_id = Project::first()->id;
+                        }
+                        else {
+                            $user->selected_project_id = $user->projects->first()->id;
+                        }                        
+                        $user->save();
+                    }
+                return $user;
+            }
+        });
     }
 
     /**

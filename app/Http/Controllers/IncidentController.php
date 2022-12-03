@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Project;
 use App\Models\Category;
 use App\Models\Incident;
 use Illuminate\Http\Request;
@@ -16,7 +18,9 @@ class IncidentController extends Controller
      */
     public function index()
     {
-        $categories=Category::all();
+        $categories=Category::where('project_id',auth()->user()->selected_project_id)->get();
+
+        // dd($categories);
 
         return Inertia::render('Incidents/Index', [
             'categories' => $categories,
@@ -45,6 +49,7 @@ class IncidentController extends Controller
      */
     public function store(Request $request)
     {
+        // dd(auth()->user()->selected_project_id);
         $this->validate($request,[
             'severity'=>'required|in:A,N,B',
             'title'=>'required|min:2',
@@ -57,6 +62,9 @@ class IncidentController extends Controller
             'title'=>$request->title,
             'description'=>$request->description,
             'client_id'=>auth()->user()->id,
+            'project_id'=>auth()->user()->selected_project_id,
+            'level_id'=>Project::find(auth()->user()->selected_project_id)->first_level_id
+            // 'client_id'=>auth()->user()->id,
         ]);
 
         return back();
@@ -105,5 +113,14 @@ class IncidentController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function attend($id)
+    {
+        $incident = Incident::findOrFail($id);
+        $incident->support_id = auth()->user()->id;
+        $incident->save();
+
+        return back();
     }
 }

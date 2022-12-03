@@ -20,8 +20,8 @@ class RolesAndPermissionsSeeder extends Seeder
         
         $role1=Role::create(['name'=>'super-admin']);
         $role2=Role::create(['name'=>'admin']);
-        $role3=Role::create(['name'=>'moderator']);
-        $role4=Role::create(['name'=>'guest']);
+        $role3=Role::create(['name'=>'support']);
+        $role4=Role::create(['name'=>'client']);
 
         Permission::create(['name'=>'read:dashboard'])->syncRoles([$role1,$role2]);
 
