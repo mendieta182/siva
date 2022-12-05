@@ -34,7 +34,7 @@ const showModal = (incident) => {
   formIncident.category_id = incident.category.name
   formIncident.project_id = incident.project.name
   formIncident.support_id = incident.support_full
-  formIncident.state = incident.state
+  formIncident.state = incident.active
 }
 
 const formIncident = useForm({
@@ -78,6 +78,37 @@ const attend = (incident) => {
   })
 }
 
+const solve = (incident) => {
+  swal.fire({
+    title: 'Estas seguro?',
+    text: "¡No podrás revertir esto!",
+    width: '400px',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: '¡Sí, resuelto!',
+    cancelButtonText: "¡No, cancelar!"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      closeModal()
+      formIncident.patch(route('incidents.solve', incident));
+      swal.fire(
+        "Resuelto",
+        "Incidente ha sido resuelto.",
+        "success"
+      )
+    }
+    if (result.dismiss === "cancel") {
+      swal.fire(
+        "Cancelado",
+        "Incidente esta a salvo :)",
+        "error"
+      )
+    }
+  })
+}
+
 const closeModal = () => {
   // estadoModalCreate.value = false
   // estadoModalEdit.value = false
@@ -92,7 +123,7 @@ const closeModal = () => {
   <AdminLayout title="AdminLayout">
     <div class="container px-6 mx-auto grid">
       <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
-        {{ $t('Dashboard') }}
+        {{ $t('Dashboard') }} {{ formIncident.state }}
       </h2>
       <!-- Cards -->
       <div v-role="'super-admin'" class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
@@ -204,7 +235,7 @@ const closeModal = () => {
                   class="py-10 border-b border-gray-200 hover:bg-gray-100">
                   <td class="px-4 py-4">
                     {{ incident.id }}
-                    <button class="p-2 rounded text-white font-bold bg-orange-500 text-sm" @click="showModal(incident)">
+                    <button class="p-1 rounded text-white font-bold bg-orange-500 text-sm" @click="showModal(incident)">
                       <Icon name="eye" class="h-5 w-5 items-center justify-around" />
                     </button>
                   </td>
@@ -262,7 +293,7 @@ const closeModal = () => {
                   class="py-10 border-b border-gray-200 hover:bg-gray-100">
                   <td class="px-4 py-4">
                     {{ incident.id }}
-                    <button class="p-2 rounded text-white font-bold bg-orange-500 text-sm" @click="showModal(incident)">
+                    <button class="p-1 rounded text-white font-bold bg-orange-500 text-sm" @click="showModal(incident)">
                       <Icon name="eye" class="h-5 w-5 items-center justify-around" />
                     </button>
                   </td>
@@ -326,7 +357,7 @@ const closeModal = () => {
                   class="py-10 border-b border-gray-200 hover:bg-gray-100">
                   <td class="px-4 py-4">
                     <!-- {{ incident.id }} -->
-                    <button class="px-2 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+                    <button class="p-1 text-white bg-blue-500 rounded-md hover:bg-blue-600"
                     @click="showModal(incident)">
                       <Icon name="eye" class="h-4 w-4"/>
                     </button>
@@ -368,7 +399,7 @@ const closeModal = () => {
       </template>
       <template #content>
         <div class="grid grid-cols-4">
-          <div class="border border-r-0 p-2 font-bold bg-gray-50">{{ $t('Project') }}</div>
+          <div class="border border-r-0 p-1 font-bold bg-gray-50">{{ $t('Project') }}</div>
           <div class="border p-2">{{ formIncident.project_id }}</div>
           <div class="border border-l-0 border-r-0 p-2 font-bold bg-gray-50">{{ $t('Category') }}</div>
           <div class="border p-2">{{ formIncident.category_id }}</div>
@@ -400,9 +431,9 @@ const closeModal = () => {
             @click="closeModal">
             <span class="text-sm">Abrir</span>
           </button>
-          <button v-role="'client'" v-if="formIncident.state == 'Asignado|Pendiente'"
+          <button v-if="formIncident.state == 'Asignado'"
             class="flex items-center justify-center bg-green-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-            @click="closeModal">
+            @click="solve(formIncident.id)">
             <span class="text-sm">Resuelto</span>
           </button>
           <button v-role="'support'"

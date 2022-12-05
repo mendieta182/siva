@@ -66,7 +66,7 @@ class Incident extends Model
 
     public function getStateAttribute()
     {
-        if ($this->support_id)
+        if ($this->support_id && $this->active == 1)
             return 'Asignado';
            
         if ($this->active == 0)

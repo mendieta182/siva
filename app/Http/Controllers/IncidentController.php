@@ -117,9 +117,19 @@ class IncidentController extends Controller
 
     public function attend($id)
     {
-        $incident = Incident::findOrFail($id);
+        $incident = Incident::findOrFail($id);        
         $incident->support_id = auth()->user()->id;
         $incident->save();
+
+        return back();
+    }
+
+    public function solve($id)
+    {
+        $incident = Incident::findOrFail($id);
+        // dd($incident);
+        $incident->active = 0;
+        $incident->update();
 
         return back();
     }
