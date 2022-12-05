@@ -93,6 +93,7 @@ Route::prefix('admin')->name('admin.')
 Route::middleware(['auth:sanctum','verified'])
     ->group(function (){
 
+    Route::patch('incidents/{incident}/open',[IncidentController::class,'open'])->name('incidents.open');
     Route::patch('incidents/{incident}/solve',[IncidentController::class,'solve'])->name('incidents.solve');
     Route::patch('incidents/{incident}/attend',[IncidentController::class,'attend'])->name('incidents.attend');
     Route::resource('incidents',IncidentController::class)

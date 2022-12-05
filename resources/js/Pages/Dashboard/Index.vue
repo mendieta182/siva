@@ -34,7 +34,8 @@ const showModal = (incident) => {
   formIncident.category_id = incident.category.name
   formIncident.project_id = incident.project.name
   formIncident.support_id = incident.support_full
-  formIncident.state = incident.active
+  formIncident.active = incident.state
+  formIncident.state = incident.state
 }
 
 const formIncident = useForm({
@@ -44,7 +45,7 @@ const formIncident = useForm({
   severity: '',
   category_id: '',
   support_id: '',
-  state: '',
+  active: '',
 })
 
 const attend = (incident) => {
@@ -96,6 +97,37 @@ const solve = (incident) => {
       swal.fire(
         "Resuelto",
         "Incidente ha sido resuelto.",
+        "success"
+      )
+    }
+    if (result.dismiss === "cancel") {
+      swal.fire(
+        "Cancelado",
+        "Incidente esta a salvo :)",
+        "error"
+      )
+    }
+  })
+}
+
+const open = (incident) => {
+  swal.fire({
+    title: 'Estas seguro?',
+    text: "¡No podrás revertir esto!",
+    width: '400px',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: '¡Sí, abrir!',
+    cancelButtonText: "¡No, cancelar!"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      closeModal()
+      formIncident.patch(route('incidents.open', incident));
+      swal.fire(
+        "Abierto",
+        "Incidente ha sida abierta.",
         "success"
       )
     }
@@ -406,7 +438,7 @@ const closeModal = () => {
           <div class="border border-t-0 border-r-0 p-2 font-bold bg-gray-50">{{ $t('Severity') }}</div>
           <div class="border border-t-0 p-2">{{ formIncident.severity }}</div>
           <div class="border border-l-0 border-t-0 border-r-0 p-2 font-bold bg-gray-50">{{ $t('State') }}</div>
-          <div class="border border-t-0 p-2">{{ formIncident.state }}</div>
+          <div class="border border-t-0 p-2">{{ formIncident.active }}</div>
           <div class="border border-t-0 border-r-0 p-2 font-bold bg-gray-50">Visibilidad</div>
           <div class="border border-t-0 p-2">--Público--</div>
           <div class="border border-l-0 border-t-0 border-r-0 p-2 font-bold bg-gray-50">Fecha envío</div>
@@ -421,17 +453,17 @@ const closeModal = () => {
           <div class="border border-t-0 p-2 col-span-3">{{ formIncident.description }}</div>
         </div>
         <div class='flex items-center justify-center p-2 space-x-1'>
-          <button v-role="'support'" v-if="formIncident.state == 'Pendiente'"
+          <button v-role="'support'" v-if="formIncident.state != 'Asignado' && formIncident.state != 'Resuelto'"
             class="flex items-center justify-center  bg-violet-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
             @click="attend(formIncident.id)">
             <span class="text-sm">Atender</span>
           </button>
-          <button v-role="'client'" v-if="formIncident.state == 'Resuelto'"
+          <button v-role:any="'client|support'" v-if="formIncident.state == 'Resuelto'"
             class="flex items-center justify-center bg-orange-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-            @click="closeModal">
+            @click="open(formIncident.id)">
             <span class="text-sm">Abrir</span>
           </button>
-          <button v-if="formIncident.state == 'Asignado'"
+          <button v-if="formIncident.state != 'Resuelto' && formIncident.state != 'Pendiente'"
             class="flex items-center justify-center bg-green-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
             @click="solve(formIncident.id)">
             <span class="text-sm">Resuelto</span>

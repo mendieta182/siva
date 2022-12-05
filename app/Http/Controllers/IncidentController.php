@@ -129,7 +129,16 @@ class IncidentController extends Controller
         $incident = Incident::findOrFail($id);
         // dd($incident);
         $incident->active = 0;
-        $incident->update();
+        $incident->save();
+
+        return back();
+    }
+
+    public function open($id)
+    {
+        $incident = Incident::findOrFail($id);
+        $incident->active = 1;
+        $incident->save();
 
         return back();
     }

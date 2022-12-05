@@ -68,11 +68,14 @@ class Incident extends Model
     {
         if ($this->support_id && $this->active == 1)
             return 'Asignado';
+
+        if ($this->support_id == null && $this->active == 1)
+            return 'Pendiente';
            
         if ($this->active == 0)
             return 'Resuelto';
             
-        return 'Pendiente';     
+        // return 'Pendiente';     
     }
 
     public function getTitleShortAttribute()
