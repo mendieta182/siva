@@ -33,6 +33,11 @@ class Incident extends Model
         return $this->belongsTo(Project::class);
     }
 
+    public function level()
+    {
+        return $this->belongsTo(Level::class);
+    }
+
     public function support()
     {
         return $this->belongsTo(User::class,'support_id');

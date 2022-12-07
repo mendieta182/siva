@@ -36,6 +36,7 @@ const showModal = (incident) => {
   formIncident.support_id = incident.support_full
   formIncident.active = incident.state
   formIncident.state = incident.state
+  formIncident.level_id = incident.level.name
 }
 
 const formIncident = useForm({
@@ -45,6 +46,7 @@ const formIncident = useForm({
   severity: '',
   category_id: '',
   support_id: '',
+  level_id: '',
   active: '',
 })
 
@@ -128,6 +130,37 @@ const open = (incident) => {
       swal.fire(
         "Abierto",
         "Incidente ha sida abierta.",
+        "success"
+      )
+    }
+    if (result.dismiss === "cancel") {
+      swal.fire(
+        "Cancelado",
+        "Incidente esta a salvo :)",
+        "error"
+      )
+    }
+  })
+}
+
+const nextLevel = (incident) => {
+  swal.fire({
+    title: 'Estas seguro?',
+    text: "¡No podrás revertir esto!",
+    width: '400px',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: '¡Sí, derivar!',
+    cancelButtonText: "¡No, cancelar!"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      closeModal()
+      formIncident.patch(route('incidents.nextLevel', incident));
+      swal.fire(
+        "Derivado",
+        "Incidente ha sido derivado.",
         "success"
       )
     }
@@ -439,8 +472,8 @@ const closeModal = () => {
           <div class="border border-t-0 p-2">{{ formIncident.severity }}</div>
           <div class="border border-l-0 border-t-0 border-r-0 p-2 font-bold bg-gray-50">{{ $t('State') }}</div>
           <div class="border border-t-0 p-2">{{ formIncident.active }}</div>
-          <div class="border border-t-0 border-r-0 p-2 font-bold bg-gray-50">Visibilidad</div>
-          <div class="border border-t-0 p-2">--Público--</div>
+          <div class="border border-t-0 border-r-0 p-2 font-bold bg-gray-50">Nivel</div>
+          <div class="border border-t-0 p-2">{{ formIncident.level_id }}</div>
           <div class="border border-l-0 border-t-0 border-r-0 p-2 font-bold bg-gray-50">Fecha envío</div>
           <div class="border border-t-0 p-2">{{ formIncident.created_at }}</div>
           <div class="border border-t-0 border-r-0 p-2 font-bold bg-gray-50">Asignada a:</div>
@@ -473,9 +506,9 @@ const closeModal = () => {
             @click="closeModal">
             <span class="text-sm">Editar</span>
           </button>
-          <button v-role="'support'"
+          <button v-role="'support'" v-if="formIncident.state == 'Asignado'"
             class="flex items-center justify-center bg-red-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-            @click="closeModal">
+            @click="nextLevel(formIncident.id)">
             <span class="text-sm">Derivar</span>
           </button>
         </div>

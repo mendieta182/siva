@@ -26,6 +26,10 @@ defineProps({
                 <Link v-if="canRegister" :href="route('register')" class="ml-4 text-sm text-gray-700 underline">
                     Register
                 </Link>
+
+                <Link :href="route('dashboard.index')" class="ml-4 text-sm text-gray-700 underline">
+                    Admin Dashboard
+                </Link>
             </template>
         </div>
 

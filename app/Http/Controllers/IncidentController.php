@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Level;
 use App\Models\Project;
 use App\Models\Category;
 use App\Models\Incident;
@@ -127,7 +128,13 @@ class IncidentController extends Controller
     public function solve($id)
     {
         $incident = Incident::findOrFail($id);
-        // dd($incident);
+
+        // si usuario autenticado es autor de la incidencia
+        
+        // if ($incident->client_id != auth()->user()->id) {
+        //     return back();
+        // }
+
         $incident->active = 0;
         $incident->save();
 
@@ -141,5 +148,53 @@ class IncidentController extends Controller
         $incident->save();
 
         return back();
+    }
+
+    public function nextLevel($id)
+    {
+        $incident = Incident::findOrFail($id);
+
+        // dd($incident);
+        $level_id=$incident->level_id;
+        
+        $project = $incident->project;
+        // $levels = $project->levels;
+        $levels=Level::where('project_id',auth()->user()->selected_project_id)->get();
+        // dd($levels);
+
+        $next_level_id=$this->getNextLevelId($level_id,$levels);
+
+        if ($next_level_id)
+        {
+            $incident->level_id=$next_level_id;
+            $incident->support_id=null;
+            $incident->save();
+            return back();
+        }
+        return back()->with('informacion','No es posible derivar porque no hay un siguiente nivel');
+    }
+
+    public function getNextLevelId($level_id,$levels)
+    {
+        if (sizeof($levels)<=1)
+            return null;
+
+        $position=-1;
+        for ($i=0;$i<sizeof($levels);$i++)
+        {
+            if($levels[$i]->id==$level_id)
+            {
+                $position=$i;
+                break;
+            }
+        }
+
+        if ($position==-1)
+            return null;
+
+        if ($position==sizeof($levels)-1)
+            return null;
+
+        return $levels[$position+1]->id;
     }
 }
