@@ -59,7 +59,7 @@ class RoleController extends Controller
             'permissions'=>'required',
         ]);
         $role=Role::create([
-            'name'=>ucwords(strtolower($request->name)),
+            'name'=>strtolower($request->name),
             'guard_name'=>'web',
         ]);
         if ($request->has('permissions')){
@@ -108,7 +108,7 @@ class RoleController extends Controller
         }
 
         $role->syncPermissions($request->permissions);
-        $role->update(['name'=>ucwords(strtolower($request->name))]);
+        $role->update(['name'=>strtolower($request->name)]);
         return back();
     }
 

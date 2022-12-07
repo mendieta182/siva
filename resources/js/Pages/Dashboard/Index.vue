@@ -5,7 +5,8 @@ import { Link } from '@inertiajs/inertia-vue3'
 import JetDialogModal from '@/Jetstream/DialogModal.vue'
 import { ref, toRefs, inject, computed, reactive, watch, useTransitionState } from 'vue'
 import { useForm } from '@inertiajs/inertia-vue3'
-import { DOMDirectiveTransforms } from '@vue/compiler-dom'
+import { Inertia } from '@inertiajs/inertia'
+
 
 
 
@@ -16,16 +17,22 @@ const props = defineProps({
   permissions_count: Number,
   my_incidents: Object,
   pending_incidents: Object,
-  incidents_by_me: Object
+  incidents_by_me: Object,
+  categories: Object
 })
 
 const estadoModalShow = ref(false);
+const estadoModalEdit = ref(false);
 const swal = inject('$swal')
+const loading = ref(false)
+
+const load = () => {
+  loading.value = true
+}
 
 const showModal = (incident) => {
-  // estadoModalCreate.value = false
   estadoModalShow.value = true
-  // estadoModalEdit.value = false
+  estadoModalEdit.value = false
   formIncident.id = incident.id
   formIncident.title = incident.title
   formIncident.description = incident.description
@@ -39,6 +46,22 @@ const showModal = (incident) => {
   formIncident.level_id = incident.level.name
 }
 
+const editModal = (incident) => {
+  error.title = ''
+  error.description = ''
+  error.category_id = ''
+  error.severity = ''
+  loading.value = false
+  estadoModalShow.value = false
+  estadoModalEdit.value = true
+  formIncident.id = incident.id
+  formIncident.title = incident.title
+  formIncident.description = incident.description
+  formIncident.severity = incident.severity
+  formIncident.category_id = incident.category.id
+  formIncident.category_name = incident.category.name
+}
+
 const formIncident = useForm({
   id: '',
   title: '',
@@ -48,6 +71,13 @@ const formIncident = useForm({
   support_id: '',
   level_id: '',
   active: '',
+})
+
+const error = reactive({
+  title: '',
+  description: '',
+  severity: '',
+  category_id: ''
 })
 
 const attend = (incident) => {
@@ -175,11 +205,46 @@ const nextLevel = (incident) => {
 }
 
 const closeModal = () => {
-  // estadoModalCreate.value = false
-  // estadoModalEdit.value = false
   estadoModalShow.value = false
+  estadoModalEdit.value = false
   formIncident.reset()
-  // loading.value = false
+  error.title = ''
+  error.description = ''
+  error.category_id = ''
+  error.severity = ''
+  loading.value = false
+}
+
+const updateIncident = () => {
+  Inertia.patch(route('incidents.update',formIncident.id),formIncident, {
+    preserveScroll: true,
+    loading: true,
+    onSuccess: () => {
+      closeModal()
+      const Toast = swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', swal.stopTimer)
+          toast.addEventListener('mouseleave', swal.resumeTimer)
+        }
+      })
+      Toast.fire({
+        icon: 'success',
+        title: 'Successfully updated incident'
+      })
+    },
+    onError: errors => {
+      error.title = errors.title
+      error.description = errors.description
+      error.severity = errors.severity
+      error.category_id = errors.category_id
+      loading.value = false
+    }
+  })
 }
 
 </script>
@@ -187,9 +252,9 @@ const closeModal = () => {
 <template>
   <AdminLayout title="AdminLayout">
     <div class="container px-6 mx-auto grid">
-      <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
-        {{ $t('Dashboard') }} {{ formIncident.state }}
-      </h2>
+      <!-- <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
+        {{ $t('Dashboard') }}
+      </h2> -->
       <!-- Cards -->
       <div v-role="'super-admin'" class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
         <!-- Card -->
@@ -269,7 +334,7 @@ const closeModal = () => {
         </div>
       </div>
       <!-- Incidents asignadas a mí -->
-      <div v-role:any="'super-admin|support'" class="items-center w-full px-4 py-4 bg-white rounded-lg shadow-md">
+      <div v-role="'support'" class="items-center w-full mt-2 p-4 bg-white rounded-lg shadow-md">
         <div class="container">
           <div class="flex justify-between w-full px-4 py-2">
             <div class="text-lg font-bold text-blue-500">
@@ -299,9 +364,10 @@ const closeModal = () => {
                 <tr v-for="incident in my_incidents" key="incident.id"
                   class="py-10 border-b border-gray-200 hover:bg-gray-100">
                   <td class="px-4 py-4">
-                    {{ incident.id }}
-                    <button class="p-1 rounded text-white font-bold bg-orange-500 text-sm" @click="showModal(incident)">
-                      <Icon name="eye" class="h-5 w-5 items-center justify-around" />
+                    <!-- {{ incident.id }} -->
+                    <button class="p-1 text-white bg-blue-500 rounded-md hover:bg-blue-600" alt="Show"
+                      @click="showModal(incident)">
+                      <Icon name="eye" class="h-4 w-4" />
                     </button>
                   </td>
                   <td class="px-4 py-4">
@@ -326,7 +392,7 @@ const closeModal = () => {
         </div>
       </div>
       <!-- Incidents sin asignar -->
-      <div v-role:unless="'client'" class="mt-3 items-center w-full px-4 py-4 bg-white rounded-lg shadow-md">
+      <div v-role:any="'client|support'" class="mt-3 items-center w-full px-4 py-4 bg-white rounded-lg shadow-md">
         <div class="container">
           <div class="flex justify-between w-full px-4 py-2">
             <div class="text-lg font-bold text-red-500">
@@ -357,9 +423,10 @@ const closeModal = () => {
                 <tr v-for="incident in pending_incidents" key="incident.id"
                   class="py-10 border-b border-gray-200 hover:bg-gray-100">
                   <td class="px-4 py-4">
-                    {{ incident.id }}
-                    <button class="p-1 rounded text-white font-bold bg-orange-500 text-sm" @click="showModal(incident)">
-                      <Icon name="eye" class="h-5 w-5 items-center justify-around" />
+                    <!-- {{ incident.id }} -->
+                    <button class="p-1 text-white bg-orange-500 rounded-md hover:bg-orange-600"
+                      @click="showModal(incident)">
+                      <Icon name="eye" class="h-4 w-4" />
                     </button>
                   </td>
                   <td class="px-4 py-4">
@@ -420,15 +487,15 @@ const closeModal = () => {
               <tbody class="text-sm font-normal text-gray-700">
                 <tr v-for="incident in incidents_by_me" key="incident.id"
                   class="py-10 border-b border-gray-200 hover:bg-gray-100">
-                  <td class="px-4 py-4">
-                    <!-- {{ incident.id }} -->
-                    <button class="p-1 text-white bg-blue-500 rounded-md hover:bg-blue-600"
-                    @click="showModal(incident)">
-                      <Icon name="eye" class="h-4 w-4"/>
+                  <td class="px-4 py-4 flex">
+                    <button class="p-1 text-white bg-amber-500 rounded-md hover:bg-amber-600"
+                      @click="showModal(incident)">
+                      <Icon name="eye" class="h-4 w-4" />
                     </button>
-                    <!-- <button class="p-2 rounded text-white font-bold bg-orange-500 text-sm" >
-                      <Icon name="eye" class="h-5 w-5 items-center justify-around" />
-                    </button> -->
+                    <button class="ml-1 p-1 text-white bg-indigo-500 rounded-md hover:bg-indigo-600"
+                      @click="editModal(incident)">
+                      <Icon name="edit" class="h-4 w-4" />
+                    </button>
                   </td>
                   <td class="px-4 py-4">
                     {{ incident.category.name }}
@@ -486,7 +553,7 @@ const closeModal = () => {
           <div class="border border-t-0 p-2 col-span-3">{{ formIncident.description }}</div>
         </div>
         <div class='flex items-center justify-center p-2 space-x-1'>
-          <button v-role="'support'" v-if="formIncident.state != 'Asignado' && formIncident.state != 'Resuelto'"
+          <button v-permission="'incident_update'" v-if="formIncident.state != 'Asignado' && formIncident.state != 'Resuelto'"
             class="flex items-center justify-center  bg-violet-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
             @click="attend(formIncident.id)">
             <span class="text-sm">Atender</span>
@@ -501,11 +568,11 @@ const closeModal = () => {
             @click="solve(formIncident.id)">
             <span class="text-sm">Resuelto</span>
           </button>
-          <button v-role="'support'"
+          <!-- <button v-role="'support'"
             class="flex items-center justify-center bg-amber-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
             @click="closeModal">
             <span class="text-sm">Editar</span>
-          </button>
+          </button> -->
           <button v-role="'support'" v-if="formIncident.state == 'Asignado'"
             class="flex items-center justify-center bg-red-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
             @click="nextLevel(formIncident.id)">
@@ -515,6 +582,95 @@ const closeModal = () => {
       </template>
     </jet-dialog-modal>
     <!-- End Show Modal -->
+    <!--  Edit Modal -->
+    <jet-dialog-modal v-if="estadoModalEdit == true" :show="estadoModalEdit" @close="estadoModalEdit = false"
+      max-width="lg">
+      <template #title>
+        <p class="text-lg flex items-center justify-center font-bold uppercase">Edit incident</p>
+      </template>
+      <template #content>
+        <!-- <div class="flex justify-center"> -->
+        <form class="h-max w-full" @submit.prevent="updateIncident">
+          <!-- <div
+              class='border-2 border-t-blue-500 mt-2 max-w-md bg-white shadow-md rounded-lg overflow-hidden mx-auto flex flex-col p-5'> -->
+          <!-- <h3 class="text-2xl text-center font-bold mb-4">{{ $t('Incident') }}</h3> -->
+          <!-- This is the select category -->
+          <div class="relative h-10 input-component mb-6">
+            <select v-model="formIncident.category_id"
+              class="inline-flex text-gray-900 items-center transition-default whitespace-nowrap text-sm pl-4 pr-7 py-2 border leading-5 font-medium shadow-sm rounded-md border-gray-300 bg-white">
+              >
+              <option disabled value='' class="text-gray-300">--Seleccione--</option>
+              <option v-for="category in categories" key="category.id" :value="category.id"
+              :selected="selected = formIncident.category_id">{{ category.name }}</option>
+            </select>
+            <label for="name" class="absolute left-2 transition-all bg-white px-1">
+              {{ $t('Category') }}
+            </label>
+          </div><!-- This is the select severity -->
+          <div class="relative h-10 input-component mb-6">
+            <select v-model="formIncident.severity"
+              class="inline-flex text-gray-900 items-center transition-default whitespace-nowrap text-sm pl-4 pr-7 py-2 border leading-5 font-medium shadow-sm rounded-md border-gray-300 bg-white">
+              >
+              <option disabled value='' class="text-gray-300">--Seleccione--</option>
+              <option value="B" :selected="formIncident.severity === 'B'">Baja</option>
+              <option value="N" :selected="formIncident.severity === 'N'">Normal</option>
+              <option value="A" :selected="formIncident.severity === 'A'">Alta</option>
+            </select>
+            <label for="name" class="absolute left-2 transition-all bg-white px-1">
+              {{ $t('Severity') }}
+            </label>
+          </div>
+          <!-- This is the input title -->
+          <div class="relative h-10 input-component mb-6">
+            <input v-model="formIncident.title" :class="error.title ? 'border-red-500 bg-red-50' : ''"
+              class="h-full w-full text-sm text-gray-900 border-gray-300 px-2 transition-all border-blue rounded-md" />
+            <p v-if="error.title" class="text-xs italic text-red-900">{{ error.title }}</p>
+            <label for="title" class="absolute left-2 transition-all bg-white px-1"
+              :class="error.title ? 'text-red-500' : ''">
+              {{ $t('Title') }}
+            </label>
+          </div>
+          <!-- This is the textarea description -->
+          <div class="relative input-component mb-6">
+            <textarea id="description" v-model="formIncident.description"
+              :class="error.description ? 'border-red-500 bg-red-50' : ''"
+              class="block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              rows="3" />
+            <p v-if="error.description" class="text-xs italic text-red-900">{{ error.description }}</p>
+            <label for="description" class="absolute left-2 transition-all bg-white px-1"
+              :class="error.description ? 'text-red-500' : ''">
+              {{ $t('Description') }}
+            </label>
+          </div>
+          <!-- This is the button -->
+          <div class="flex items-center justify-center space-x-4">
+            <button type="button"
+              class="w-full px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out"
+              @click="closeModal">
+              {{ $t('Cancel') }}
+            </button>
+            <button type="submit" @click="load"
+              :disabled="!formIncident.category_id || !formIncident.severity || !formIncident.title || !formIncident.description || formIncident.processing"
+              :class="!formIncident.category_id || !formIncident.severity || !formIncident.title || !formIncident.description ? 'disabled:opacity-50 disabled cursor-not-allowed' : ''"
+              class="w-full uppercase justify-center text-white leading-tight bg-blue-600 hover:bg-blue-800 focus:outline-none font-medium rounded text-xs inline-flex items-center px-6 py-2.5 text-center">
+              <svg v-if="loading" aria-hidden="true" role="status"
+                class="inline mr-2 w-4 h-4 text-gray-200 animate-spin dark:text-gray-600" viewBox="0 0 100 101"
+                fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                  fill="currentColor" />
+                <path
+                  d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                  fill="#1C64F2" />
+              </svg>
+              {{ $t('Update') }}
+            </button>
+          </div>
+          <!-- </div> -->
+        </form>
+      </template>
+    </jet-dialog-modal>
+    <!-- End Edit Modal -->
   </AdminLayout>
 </template>
 

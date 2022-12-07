@@ -1,13 +1,13 @@
 <template>
-  <aside class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0">
-      <div class="py-4 text-gray-500 dark:text-gray-400">
+  <aside class="z-20 py-4 hidden w-64 bg-white dark:bg-gray-800 md:block flex-shrink-0">
+      <div class="text-gray-500 dark:text-gray-400">
         <div class="flex items-center justify-items-center justify-center">
           <svg class="w-8 h-8 fill-current dark:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z" />
-        </svg>
-        <span class="ml-2 text-sm font-bold dark:text-white">The App</span>
+          </svg>
+          <span class="ml-2 text-sm font-bold dark:text-white">The App</span>
         </div>
-        <ul class="mt-5">          
+        <ul class="mt-8">          
           <li class="relative px-6 py-3 hover:text-gray-800" 
             :class="route().current('dashboard.*') ? 'bg-gray-200 text-gray-800':'hover:bg-blue-50'">
             <span v-if="route().current('dashboard.*')" 
@@ -68,7 +68,7 @@
               <span class="ml-4">{{ $t("Permissions") }}</span>
             </Link>
           </li>
-          <li class="relative px-6 py-3"
+          <li class="relative px-6 py-3" v-permission="'incident_create'"
             :class="route().current('incidents.*') ? 'bg-gray-200 text-gray-800':'hover:bg-blue-50'">
             <span v-if="route().current('incidents.*')" 
               class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-lg rounded-br-lg"

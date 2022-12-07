@@ -102,7 +102,25 @@ class IncidentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $incident = Incident::findOrFail($id);
+
+        // dd($incident);
+
+        $this->validate($request,[
+            'category_id'=>'required|exists:categories,id',
+            'severity'=>'required|in:A,N,B',
+            'title'=>'required|min:2',
+            'description'=>'required|min:2'
+        ]);
+
+        $incident->update([
+            'category_id'=>$request->category_id,
+            'severity'=>$request->severity,
+            'title'=>$request->title,
+            'description'=>$request->description
+        ]);
+
+        return back();
     }
 
     /**
